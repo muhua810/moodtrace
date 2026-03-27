@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 680 520" width="680" height="520" id="project-structure">
+<defs>
+  <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+  </filter>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+  </marker>
+  <marker id="arrow-indigo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1"/>
+  </marker>
+  <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e"/>
+  </marker>
+  <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#a855f7"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, 'Segoe UI', 'Noto Sans SC', sans-serif; }
+  .title { font-size: 13px; font-weight: 600; fill: #ffffff; }
+  .label { font-size: 11px; font-weight: 500; fill: #1e293b; }
+  .label-sm { font-size: 10px; fill: #64748b; }
+  .label-white { font-size: 11px; font-weight: 500; fill: #ffffff; }
+  .box { rx: 10; ry: 10; filter: url(#shadow); }
+  .box-sm { rx: 8; ry: 8; filter: url(#shadow); }
+  .section-title { font-size: 14px; font-weight: 700; fill: #1e293b; }
+</style>
+<text x="340" y="24" text-anchor="middle" class="section-title">项目结构</text><text x="30" y="50" text-anchor="start" class="section-title">src/</text><line x1="48" y1="76" x2="56" y2="76" stroke="#94a3b8" stroke-width="1.5"/><text x="60" y="80" text-anchor="start" class="label">components/</text><line x1="78" y1="92" x2="78" y2="104" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="104" x2="86" y2="104" stroke="#94a3b8" stroke-width="1"/><text x="90" y="108" text-anchor="start" class="label-sm">Layout.jsx — 底部导航 + Toast</text><line x1="78" y1="114" x2="78" y2="126" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="126" x2="86" y2="126" stroke="#94a3b8" stroke-width="1"/><text x="90" y="130" text-anchor="start" class="label-sm">HeatmapCalendar.jsx — SVG 情绪热力图</text><line x1="78" y1="136" x2="78" y2="148" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="148" x2="86" y2="148" stroke="#94a3b8" stroke-width="1"/><text x="90" y="152" text-anchor="start" class="label-sm">MonthCalendar.jsx — 月历视图</text><line x1="78" y1="158" x2="78" y2="170" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="170" x2="86" y2="170" stroke="#94a3b8" stroke-width="1"/><text x="90" y="174" text-anchor="start" class="label-sm">CaringCard.jsx — 3 级关怀卡片</text><line x1="78" y1="180" x2="78" y2="192" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="192" x2="86" y2="192" stroke="#94a3b8" stroke-width="1"/><text x="90" y="196" text-anchor="start" class="label-sm">KeywordCloud.jsx — 关键词云</text><line x1="78" y1="202" x2="78" y2="214" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="214" x2="86" y2="214" stroke="#94a3b8" stroke-width="1"/><text x="90" y="218" text-anchor="start" class="label-sm">...</text><line x1="48" y1="244" x2="56" y2="244" stroke="#94a3b8" stroke-width="1.5"/><text x="60" y="248" text-anchor="start" class="label">pages/</text><line x1="78" y1="260" x2="78" y2="272" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="272" x2="86" y2="272" stroke="#94a3b8" stroke-width="1"/><text x="90" y="276" text-anchor="start" class="label-sm">HomePage / RecordPage / StatsPage / ProfilePage / NotFound</text><line x1="48" y1="302" x2="56" y2="302" stroke="#94a3b8" stroke-width="1.5"/><text x="60" y="306" text-anchor="start" class="label">services/</text><line x1="78" y1="318" x2="78" y2="330" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="330" x2="86" y2="330" stroke="#94a3b8" stroke-width="1"/><text x="90" y="334" text-anchor="start" class="label-sm">emotionAnalyzer — 情绪分析引擎</text><line x1="78" y1="340" x2="78" y2="352" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="352" x2="86" y2="352" stroke="#94a3b8" stroke-width="1"/><text x="90" y="356" text-anchor="start" class="label-sm">storage — 加密本地存储</text><line x1="78" y1="362" x2="78" y2="374" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="374" x2="86" y2="374" stroke="#94a3b8" stroke-width="1"/><text x="90" y="378" text-anchor="start" class="label-sm">apiService / backupService / statisticalAnalyzer</text><line x1="48" y1="404" x2="56" y2="404" stroke="#94a3b8" stroke-width="1.5"/><text x="60" y="408" text-anchor="start" class="label">utils/</text><line x1="78" y1="420" x2="78" y2="432" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="432" x2="86" y2="432" stroke="#94a3b8" stroke-width="1"/><text x="90" y="436" text-anchor="start" class="label-sm">moodUtils + crypto (AES-256-GCM)</text><line x1="48" y1="462" x2="56" y2="462" stroke="#94a3b8" stroke-width="1.5"/><text x="60" y="466" text-anchor="start" class="label">test/</text><line x1="78" y1="478" x2="78" y2="490" stroke="#94a3b8" stroke-width="1"/><line x1="78" y1="490" x2="86" y2="490" stroke="#94a3b8" stroke-width="1"/><text x="90" y="494" text-anchor="start" class="label-sm">130+ 单元测试</text></svg>

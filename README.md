@@ -38,13 +38,7 @@
 
 传统情绪分析要么依赖云端 AI（需要 API Key、有延迟），要么依赖简单关键词匹配（准确率低）。本项目实现了**零配置可用的智能分析引擎**：
 
-```
-用户输入 → Workers AI 代理 (DeepSeek)
-            ↓ 失败
-        用户自定义 API
-            ↓ 失败
-        本地关键词引擎（140+ 关键词 + 29 否定词 + Emoji + 分句加权 + 反讽检测 + 网络用语）
-```
+![AI 三级降级策略](docs/ai-degradation.svg)
 
 **分句加权算法**是核心创新：
 - 检测"虽然…但是…"反转模式，后半句权重 2.5x
@@ -86,9 +80,7 @@
 
 ## 🏗️ 技术架构
 
-![技术架构图](docs/architecture.png)
-
-> 高清 SVG 版本见 [`docs/architecture.svg`](docs/architecture.svg)
+![技术架构图](docs/architecture.svg)
 
 ## 🛠️ 技术栈
 
@@ -105,36 +97,7 @@
 
 ## 📁 项目结构
 
-```
-src/
-├── components/           # 公共组件
-│   ├── Layout.jsx        # 底部导航布局 + Toast
-│   ├── HeatmapCalendar.jsx  # SVG 情绪热力图（自研）
-│   ├── MonthCalendar.jsx    # 月历视图
-│   ├── CaringCard.jsx       # 3 级渐进式关怀卡片
-│   ├── KeywordCloud.jsx     # 高频关键词云
-│   ├── MiniTrend.jsx        # 迷你趋势图
-│   ├── ErrorBoundary.jsx    # 错误边界
-│   └── Onboarding.jsx       # 新用户引导
-├── pages/
-│   ├── HomePage.jsx      # 首页 Dashboard
-│   ├── RecordPage.jsx    # 情绪记录页
-│   ├── StatsPage.jsx     # 统计分析（5 个 Tab）
-│   ├── ProfilePage.jsx   # 设置页
-│   └── NotFound.jsx      # 404 兜底
-├── services/
-│   ├── emotionAnalyzer.js   # 情绪分析引擎（含反讽检测 + 网络用语）
-│   ├── storage.js           # 加密本地存储
-│   ├── apiService.js        # 后端 API 服务
-│   ├── backupService.js     # 云端备份服务
-│   ├── statisticalAnalyzer.js # 统计分析服务
-│   ├── reminder.js          # 每日提醒
-│   └── demoData.js          # 示例数据生成器
-├── utils/
-│   ├── moodUtils.js         # 情绪类型定义
-│   └── crypto.js            # AES-256-GCM 加密
-└── test/                    # 单元测试 (130+)
-```
+![项目结构](project-structure.svg)
 
 ## 🚀 快速开始
 

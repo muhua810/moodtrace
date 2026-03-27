@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 750 360" width="750" height="360" id="storage-cache">
+<defs>
+  <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+  </filter>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+  </marker>
+  <marker id="arrow-indigo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1"/>
+  </marker>
+  <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e"/>
+  </marker>
+  <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#a855f7"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, 'Segoe UI', 'Noto Sans SC', sans-serif; }
+  .title { font-size: 13px; font-weight: 600; fill: #ffffff; }
+  .label { font-size: 11px; font-weight: 500; fill: #1e293b; }
+  .label-sm { font-size: 10px; fill: #64748b; }
+  .label-white { font-size: 11px; font-weight: 500; fill: #ffffff; }
+  .box { rx: 10; ry: 10; filter: url(#shadow); }
+  .box-sm { rx: 8; ry: 8; filter: url(#shadow); }
+  .section-title { font-size: 14px; font-weight: 700; fill: #1e293b; }
+</style>
+<text x="375" y="24" text-anchor="middle" class="section-title">存储服务 · 缓存架构</text><rect x="30" y="60" width="300" height="44" fill="#0ea5e9" class="box"/><text x="180" y="86" text-anchor="middle" class="label-white">getAllRecords() [同步-初始渲染]</text><line x1="180" y1="104" x2="180" y2="130" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/><rect x="80" y="130" width="200" height="40" fill="#f0f9ff" class="box"/><text x="180" y="154" text-anchor="middle" class="label">检查加密模式</text><line x1="180" y1="170" x2="120" y2="200" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow)"/><rect x="40" y="200" width="160" height="40" fill="#22c55e" class="box-sm"/><text x="120" y="224" text-anchor="middle" class="label-white">未加密 → 直接读取</text><line x1="180" y1="170" x2="240" y2="200" stroke="#f97316" stroke-width="1.5" marker-end="url(#arrow)"/><rect x="200" y="200" width="160" height="40" fill="#f97316" class="box-sm"/><text x="280" y="224" text-anchor="middle" class="label-white">已加密 → 返回缓存</text><rect x="420" y="60" width="300" height="44" fill="#a855f7" class="box"/><text x="570" y="86" text-anchor="middle" class="label-white">getAllRecordsAsync() [异步-主路径]</text><line x1="570" y1="104" x2="570" y2="130" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arrow-purple)"/><rect x="470" y="130" width="200" height="40" fill="#a855f7" class="box"/><text x="570" y="154" text-anchor="middle" class="label-white">secureGet() 解密读取</text><line x1="570" y1="170" x2="570" y2="200" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arrow-purple)"/><rect x="470" y="200" width="200" height="40" fill="#22c55e" class="box-sm"/><text x="570" y="224" text-anchor="middle" class="label-white">更新 _recordsCache</text><rect x="280" y="280" width="190" height="60" fill="#22c55e" class="box"/><text x="375" y="308" text-anchor="middle" class="label-white">LocalStorage</text><text x="375" y="326" text-anchor="middle" class="label-sm">(支持 AES-256-GCM)</text><line x1="180" y1="240" x2="330" y2="280" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow-green)"/><line x1="570" y1="240" x2="420" y2="280" stroke="#22c55e" stroke-width="1.5" marker-end="url(#arrow-green)"/><rect x="520" y="290" width="200" height="44" fill="#6366f1" class="box"/><text x="620" y="316" text-anchor="middle" class="label-white">saveRecordAsync()</text><text x="620" y="330" text-anchor="middle" class="label-sm">同步更新缓存 + 写入</text><line x1="620" y1="290" x2="470" y2="310" stroke="#6366f1" stroke-width="1.5" marker-end="url(#arrow-indigo)"/></svg>

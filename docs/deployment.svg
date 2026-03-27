@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 700 280" width="700" height="280" id="deployment">
+<defs>
+  <filter id="shadow" x="-4%" y="-4%" width="108%" height="112%">
+    <feDropShadow dx="0" dy="2" stdDeviation="3" flood-opacity="0.08"/>
+  </filter>
+  <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+  </marker>
+  <marker id="arrow-indigo" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#6366f1"/>
+  </marker>
+  <marker id="arrow-green" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#22c55e"/>
+  </marker>
+  <marker id="arrow-purple" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="8" markerHeight="8" orient="auto-start-reverse">
+    <path d="M 0 0 L 10 5 L 0 10 z" fill="#a855f7"/>
+  </marker>
+</defs>
+<style>
+  text { font-family: -apple-system, 'Segoe UI', 'Noto Sans SC', sans-serif; }
+  .title { font-size: 13px; font-weight: 600; fill: #ffffff; }
+  .label { font-size: 11px; font-weight: 500; fill: #1e293b; }
+  .label-sm { font-size: 10px; fill: #64748b; }
+  .label-white { font-size: 11px; font-weight: 500; fill: #ffffff; }
+  .box { rx: 10; ry: 10; filter: url(#shadow); }
+  .box-sm { rx: 8; ry: 8; filter: url(#shadow); }
+  .section-title { font-size: 14px; font-weight: 700; fill: #1e293b; }
+</style>
+<text x="350" y="24" text-anchor="middle" class="section-title">部署架构</text><rect x="30" y="80" width="180" height="60" fill="#94a3b8" class="box-sm"/><text x="120" y="108" text-anchor="middle" class="label-white">开发者本地</text><text x="120" y="126" text-anchor="middle" class="label-sm">npm run build</text><line x1="210" y1="110" x2="240" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/><rect x="240" y="80" width="180" height="60" fill="#1e293b" class="box-sm"/><text x="330" y="108" text-anchor="middle" class="label-white">GitHub</text><text x="330" y="126" text-anchor="middle" class="label-sm">git push → webhook</text><line x1="420" y1="110" x2="450" y2="110" stroke="#64748b" stroke-width="1.5" marker-end="url(#arrow)"/><rect x="450" y="80" width="180" height="60" fill="#f97316" class="box-sm"/><text x="540" y="108" text-anchor="middle" class="label-white">Cloudflare Pages</text><text x="540" y="126" text-anchor="middle" class="label-sm">CDN 全球分发</text><rect x="450" y="170" width="90" height="32" fill="#fff7ed" class="box"/><text x="495" y="190" text-anchor="middle" class="label-sm">自动构建</text><rect x="545" y="170" width="90" height="32" fill="#fff7ed" class="box"/><text x="590" y="190" text-anchor="middle" class="label-sm">HTTPS</text><rect x="450" y="210" width="90" height="32" fill="#fff7ed" class="box"/><text x="495" y="230" text-anchor="middle" class="label-sm">CDN 分发</text><rect x="545" y="210" width="90" height="32" fill="#fff7ed" class="box"/><text x="590" y="230" text-anchor="middle" class="label-sm">自定义域名</text><rect x="240" y="180" width="180" height="60" fill="#a855f7" class="box-sm"/><text x="330" y="208" text-anchor="middle" class="label-white">Cloudflare Workers</text><text x="330" y="226" text-anchor="middle" class="label-sm">AI 代理 + 统计 API</text><path d="M 330 140 L 330 180" fill="none" stroke="#a855f7" stroke-width="1.5" marker-end="url(#arrow-purple)"/></svg>
