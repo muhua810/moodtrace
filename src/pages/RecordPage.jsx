@@ -7,6 +7,7 @@ import { analyzeEmotion, getWellnessTips } from '../services/emotionAnalyzer'
 import { saveRecordAsync, getAllRecordsAsync } from '../services/storage'
 import { MOOD_TYPES, getMoodColor, getMoodBgClass, getMoodList } from '../utils/moodUtils'
 import { submitMoodStat } from '../services/apiService'
+import CaringCard from '../components/CaringCard'
 
 export default function RecordPage() {
   const navigate = useNavigate()
@@ -23,6 +24,7 @@ export default function RecordPage() {
   const [editing, setEditing] = useState(false)
   const [showQuickJump, setShowQuickJump] = useState(false)
   const [error, setError] = useState(null)
+  const [showCaring, setShowCaring] = useState(false)
   const dateInputRef = useRef(null)
   const quickJumpRef = useRef(null)
 
@@ -122,6 +124,12 @@ export default function RecordPage() {
     // 提交匿名统计（静默），附带关键词用于热度排行
     submitMoodStat({ mood: result.mood, date: dateParam, keywords: result.keywords })
     setSaved(true)
+    // 负面情绪触发关怀卡片
+    if (result.mood === 'negative' || result.mood === 'very_negative') {
+      setShowCaring(true)
+    } else {
+      setShowCaring(false)
+    }
     // 通知其他页面数据已更新
     window.dispatchEvent(new Event('mood-record-updated'))
   }
@@ -405,23 +413,33 @@ export default function RecordPage() {
               {editing ? '重新保存' : '保存记录'}
             </button>
           ) : (
-            <div className="text-center py-3 animate-success-pulse" role="status">
-              <p className="text-green-400 text-sm font-medium">✓ 已保存</p>
-              <div className="flex items-center justify-center gap-4 mt-2">
-                <button
-                  onClick={() => setEditing(true)}
-                  className="text-sm text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
-                >
-                  编辑
-                </button>
-                <button
-                  onClick={() => navigate('/')}
-                  className="text-sm theme-text-tertiary hover:theme-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
-                >
-                  返回首页
-                </button>
+            <>
+              <div className="text-center py-3 animate-success-pulse" role="status">
+                <p className="text-green-400 text-sm font-medium">✓ 已保存</p>
+                <div className="flex items-center justify-center gap-4 mt-2">
+                  <button
+                    onClick={() => setEditing(true)}
+                    className="text-sm text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
+                  >
+                    编辑
+                  </button>
+                  <button
+                    onClick={() => navigate('/')}
+                    className="text-sm theme-text-tertiary hover:theme-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
+                  >
+                    返回首页
+                  </button>
+                </div>
               </div>
-            </div>
+
+              {/* 关怀卡片（负面情绪时显示） */}
+              {showCaring && (
+                <CaringCard
+                  mood={result?.mood}
+                  onClose={() => setShowCaring(false)}
+                />
+              )}
+            </>
           )}
         </div>
       )}

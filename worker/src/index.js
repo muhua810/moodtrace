@@ -9,6 +9,8 @@
  *   GET  /api/stats/trends     获取周趋势数据
  *   GET  /api/stats/keywords   获取关键词热度排行
  *   GET  /api/health           健康检查
+ *   POST /api/backup/save      云端备份数据
+ *   GET  /api/backup/restore   恢复云端数据
  */
 
 const CORS_HEADERS = {
@@ -379,6 +381,85 @@ async function handleKeywords(request, env) {
   return corsResponse({ month, keywords: ranked, total: ranked.reduce((s, k) => s + k.count, 0) })
 }
 
+// ============ 云端备份 ============
+const MAX_BACKUP_SIZE = 500 * 1024 // 500KB 上限
+
+/**
+ * 保存备份
+ * Body: { deviceId: string, data: array, version: number }
+ * 按 deviceId 存储，每个设备独立一份备份
+ */
+async function handleBackupSave(request, env) {
+  try {
+    const body = await request.json()
+    const { deviceId, data, version } = body
+
+    if (!deviceId || typeof deviceId !== 'string' || deviceId.length > 64) {
+      return corsResponse({ error: '无效的设备标识' }, 400)
+    }
+    if (!Array.isArray(data)) {
+      return corsResponse({ error: '数据格式错误' }, 400)
+    }
+
+    const serialized = JSON.stringify(data)
+    if (serialized.length > MAX_BACKUP_SIZE) {
+      return corsResponse({ error: '数据量超出备份上限（500KB）' }, 400)
+    }
+
+    const backupKey = `backup:${deviceId}`
+    const meta = {
+      data,
+      count: data.length,
+      version: version || 1,
+      savedAt: new Date().toISOString(),
+      size: serialized.length,
+    }
+
+    await env.MOOD_STATS.put(backupKey, JSON.stringify(meta))
+
+    return corsResponse({
+      success: true,
+      count: data.length,
+      savedAt: meta.savedAt,
+    })
+  } catch (e) {
+    return corsResponse({ error: '备份失败' }, 500)
+  }
+}
+
+/**
+ * 恢复备份
+ * Query: ?deviceId=xxx
+ */
+async function handleBackupRestore(request, env) {
+  const url = new URL(request.url)
+  const deviceId = url.searchParams.get('deviceId')
+
+  if (!deviceId || typeof deviceId !== 'string' || deviceId.length > 64) {
+    return corsResponse({ error: '请提供有效的设备标识' }, 400)
+  }
+
+  const backupKey = `backup:${deviceId}`
+  const raw = await env.MOOD_STATS.get(backupKey)
+
+  if (!raw) {
+    return corsResponse({ error: '未找到备份数据', hasBackup: false }, 404)
+  }
+
+  try {
+    const meta = JSON.parse(raw)
+    return corsResponse({
+      success: true,
+      data: meta.data,
+      count: meta.count,
+      savedAt: meta.savedAt,
+      hasBackup: true,
+    })
+  } catch {
+    return corsResponse({ error: '备份数据损坏' }, 500)
+  }
+}
+
 // ============ 健康检查 ============
 function handleHealth() {
   return corsResponse({
@@ -392,6 +473,8 @@ function handleHealth() {
       'GET  /api/stats/summary?month=YYYY-MM',
       'GET  /api/stats/trends?months=3',
       'GET  /api/stats/keywords?month=YYYY-MM&limit=20',
+      'POST /api/backup/save',
+      'GET  /api/backup/restore?deviceId=xxx',
       'GET  /api/health',
     ],
   })
@@ -418,6 +501,10 @@ export default {
     if (url.pathname === '/api/stats/summary' && request.method === 'GET') return handleSummary(request, env)
     if (url.pathname === '/api/stats/trends' && request.method === 'GET') return handleTrends(request, env)
     if (url.pathname === '/api/stats/keywords' && request.method === 'GET') return handleKeywords(request, env)
+
+    // 云端备份端点
+    if (url.pathname === '/api/backup/save' && request.method === 'POST') return handleBackupSave(request, env)
+    if (url.pathname === '/api/backup/restore' && request.method === 'GET') return handleBackupRestore(request, env)
 
     return corsResponse({ error: 'Not Found' }, 404)
   },

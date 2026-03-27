@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Key, Database, Trash2, Info, Heart, Shield, ExternalLink, Upload, Bell, Sun, Moon, Lock, X } from 'lucide-react'
-import { exportData, importData, clearAllData, isEncryptionEnabled, enableEncryption, setEncryptionEnabled } from '../services/storage'
+import { ArrowLeft, Key, Database, Trash2, Info, Heart, Shield, ExternalLink, Upload, Bell, Sun, Moon, Lock, X, Cloud, CloudUpload, CloudDownload, Copy } from 'lucide-react'
+import { getDisplayDeviceId, uploadBackup, downloadBackup } from '../services/backupService'
+import { exportData, importData, clearAllData, isEncryptionEnabled, enableEncryption, setEncryptionEnabled, saveRecordAsync } from '../services/storage'
 import { getReminderSettings, saveReminderSettings, requestNotificationPermission, startReminderCheck, stopReminderCheck, isNotificationSupported } from '../services/reminder'
 import { useTheme } from '../contexts/ThemeContext'
 import { isAnonymousSubmitEnabled, setAnonymousSubmitEnabled, getApiBase, setApiBase } from '../services/apiService'
@@ -73,6 +74,9 @@ export default function ProfilePage() {
   )
   const [confirmConfig, setConfirmConfig] = useState(null)
   const [toast, setToast] = useState(null)
+  const [backupLoading, setBackupLoading] = useState(false)
+  const [deviceId] = useState(() => getDisplayDeviceId())
+  const [copied, setCopied] = useState(false)
 
   const showToast = useCallback((message, type = 'success') => {
     setToast({ message, type, key: Date.now() })
@@ -175,6 +179,53 @@ export default function ProfilePage() {
   }
 
   const notifSupported = isNotificationSupported()
+
+  const handleUploadBackup = async () => {
+    setBackupLoading(true)
+    const result = await uploadBackup()
+    setBackupLoading(false)
+    if (result.success) {
+      showToast(`备份成功！已上传 ${result.count} 条记录`)
+    } else {
+      showToast(result.error || '备份失败', 'error')
+    }
+  }
+
+  const handleDownloadBackup = () => {
+    setConfirmConfig({
+      title: '从云端恢复',
+      message: '恢复将与本地数据合并（已有日期不覆盖）。确定继续？',
+      confirmText: '确认恢复',
+      danger: false,
+      onConfirm: async () => {
+        setConfirmConfig(null)
+        setBackupLoading(true)
+        const result = await downloadBackup()
+        setBackupLoading(false)
+        if (result.success && result.data) {
+          let imported = 0
+          for (const record of result.data) {
+            if (record?.date && record?.mood) {
+              await saveRecordAsync(record)
+              imported++
+            }
+          }
+          showToast(`恢复成功！已同步 ${imported} 条记录`)
+          window.dispatchEvent(new Event('mood-record-updated'))
+        } else {
+          showToast(result.error || '恢复失败', 'error')
+        }
+      },
+      onCancel: () => setConfirmConfig(null),
+    })
+  }
+
+  const handleCopyDeviceId = () => {
+    navigator.clipboard.writeText(deviceId).then(() => {
+      setCopied(true)
+      setTimeout(() => setCopied(false), 2000)
+    })
+  }
 
   const handleToggleEncryption = async () => {
     if (!encryptionOn) {
@@ -365,6 +416,57 @@ export default function ProfilePage() {
           >
             <span className="text-sm">清除所有数据</span>
             <Trash2 size={14} aria-hidden="true" />
+          </button>
+        </div>
+      </section>
+
+      {/* 云端备份 */}
+      <section className="glass rounded-2xl p-4 mb-4" aria-label="云端备份">
+        <div className="flex items-center gap-2 mb-4">
+          <Cloud size={16} className="text-sky-400" aria-hidden="true" />
+          <h2 className="text-sm font-medium theme-text">云端备份</h2>
+        </div>
+        <p className="text-xs theme-text-tertiary mb-3">
+          无需注册，一键备份到云端。换设备时输入设备 ID 即可恢复数据。
+        </p>
+
+        {/* 设备 ID */}
+        <div className="mb-3 p-3 rounded-xl bg-white/5">
+          <div className="flex items-center justify-between mb-1">
+            <span className="text-xs theme-text-tertiary">你的设备 ID</span>
+            <button
+              onClick={handleCopyDeviceId}
+              className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 transition-colors"
+              aria-label="复制设备 ID"
+            >
+              <Copy size={12} /> {copied ? '已复制' : '复制'}
+            </button>
+          </div>
+          <p className="text-sm font-mono theme-text tracking-wider">{deviceId}</p>
+          <p className="text-[10px] theme-text-muted mt-1">保存此 ID，换设备时可用于恢复数据</p>
+        </div>
+
+        <div className="space-y-2">
+          <button
+            onClick={handleUploadBackup}
+            disabled={backupLoading}
+            className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-2">
+              <CloudUpload size={14} className="text-sky-400" aria-hidden="true" />
+              <span className="text-sm theme-text">{backupLoading ? '备份中...' : '上传备份到云端'}</span>
+            </div>
+          </button>
+
+          <button
+            onClick={handleDownloadBackup}
+            disabled={backupLoading}
+            className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-sky-400/50 disabled:opacity-50"
+          >
+            <div className="flex items-center gap-2">
+              <CloudDownload size={14} className="text-sky-400" aria-hidden="true" />
+              <span className="text-sm theme-text">{backupLoading ? '恢复中...' : '从云端恢复数据'}</span>
+            </div>
           </button>
         </div>
       </section>

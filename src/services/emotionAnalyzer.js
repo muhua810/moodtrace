@@ -21,6 +21,32 @@ const KEYWORD_RULES = [
 
 const NEUTRAL_KEYWORDS = ['一般', '还行', '普通', '正常', '平淡', '没什么', '就这样', '凑合', '马马虎虎', '不好不坏', 'soso', 'okay', 'fine', '中规中矩', '过得去', '无功无过', '不上不下', '一如既往']
 
+// ============ 反讽/阴阳怪气检测 ============
+const SARCASM_PATTERNS = [
+  // "呢"结尾 + 正面词 → 大概率反讽
+  { test: (text) => /呢[！!~～。.]*$/.test(text) && POSITIVE_SARCASM_WORDS.some(w => text.includes(w)), flipTo: 'negative' },
+  // "呵呵"独立出现 → 反讽
+  { test: (text) => /呵呵[！!~～。.]*$/.test(text) || /^呵呵/.test(text), flipTo: 'negative' },
+  // "真是太X了呢"结构 → 反讽
+  { test: (text) => /真是.{0,6}(好|棒|开心|高兴|厉害|优秀|完美|精彩)啊?[呢！!~～]+$/.test(text), flipTo: 'negative' },
+  // "好一个" + 正面词 → 反讽
+  { test: (text) => /好一个.{0,6}(开心|高兴|幸福|美好)/.test(text), flipTo: 'negative' },
+  // "哈哈" + 负面emoji → 反讽（笑哭）
+  { test: (text) => /哈哈/.test(text) && /😭|💀|🤡|😰|😅/.test(text), flipTo: 'negative' },
+  // 纯粹一串"哈"或"笑"后跟负面词
+  { test: (text) => /^[哈嘻]{3,}/.test(text) && /了|完|死|没/.test(text), flipTo: 'negative' },
+]
+
+const POSITIVE_SARCASM_WORDS = ['开心', '高兴', '棒', '好', '厉害', '优秀', '完美', '幸福', '美好', '快乐', '精彩', '太爽']
+
+// ============ 网络用语/缩写补充 ============
+const SLANG_KEYWORDS = [
+  { score: 5, keywords: ['绝绝子', 'yyds', '破防了', 'awsl', '好家伙', '太绝了', '赢麻了', '封神', '血赚'] },
+  { score: 4, keywords: ['针不戳', '真不错', '可以可以', '还挺好', '有被暖到', '有被治愈到', '有被感动到', '爱了', '好家伙真不错'] },
+  { score: 2, keywords: ['破防', 'emo', 'emoc了', '蚌埠住了', '难绷', '绷不住了', '寄了', '无语', '裂开', '人麻了', '心态崩了', '很烦', '搞不动', '顶不住', '遭不住', '难顶', '不想干', '躺平', '摆烂', '润了', '我吐了', '想鼠', '不想动'] },
+  { score: 1, keywords: ['想死', '不想活了', '活不下去', '想不开', '去死', '了结'] },
+]
+
 // ============ Emoji 情绪映射 ============
 const EMOJI_MOOD_MAP = {
   // 非常正面
@@ -103,6 +129,19 @@ function hasRelativeExpression(text) {
 }
 
 /**
+ * 检测反讽表达
+ * 返回 { isSarcasm: boolean, flipTo: string|null }
+ */
+function detectSarcasm(text) {
+  for (const pattern of SARCASM_PATTERNS) {
+    if (pattern.test(text)) {
+      return { isSarcasm: true, flipTo: pattern.flipTo }
+    }
+  }
+  return { isSarcasm: false, flipTo: null }
+}
+
+/**
  * 检测反转模式（"虽然...但是..."后半句权重更高）
  * 返回 { hasReversal: boolean, afterIndex: number } — afterIndex 是"但是"开始的位置
  */
@@ -150,7 +189,23 @@ function analyzeClause(clauseText, clauseWeight = 1) {
   let bestMatched = []
   let negatedKeywords = []
 
-  for (const rule of KEYWORD_RULES) {
+  // 合并标准关键词和网络用语关键词
+  const allRules = [...KEYWORD_RULES]
+  // 补充网络用语（不重复的）
+  for (const slangRule of SLANG_KEYWORDS) {
+    const existingRule = allRules.find(r => r.score === slangRule.score)
+    if (existingRule) {
+      // 合并到对应分数段
+      const newKw = slangRule.keywords.filter(k => !existingRule.keywords.includes(k))
+      if (newKw.length > 0) {
+        existingRule.keywords = [...existingRule.keywords, ...newKw]
+      }
+    } else {
+      allRules.push({ ...slangRule })
+    }
+  }
+
+  for (const rule of allRules) {
     const matched = rule.keywords.filter(kw => lower.includes(kw))
     if (matched.length === 0) continue
 
@@ -192,7 +247,30 @@ function analyzeClause(clauseText, clauseWeight = 1) {
   return { score: bestScore, weight: bestWeight, matched: bestMatched, negated: negatedKeywords }
 }
 
+// ============ 危机关键词（直接触发关怀） ============
+const CRISIS_KEYWORDS = ['想死', '不想活', '活不下去', '想不开', '去死', '了结自己', '自杀', '自残']
+
+function hasCrisisKeywords(text) {
+  return CRISIS_KEYWORDS.some(kw => text.includes(kw))
+}
+
 function localAnalyze(text) {
+  // 0. 危机关键词检测 → 最高优先级，直接返回 1 + 关怀建议
+  if (hasCrisisKeywords(text)) {
+    return {
+      ...buildResult(1, 0.95, '⚠️ 检测到你可能正在经历困难时刻', ['⚠️ 需要关怀']),
+      suggestion: '你并不孤单。请拨打心理援助热线 400-161-9995，有人愿意倾听。',
+      _crisis: true,
+    }
+  }
+
+  // 0.5 检测反讽（高优先级，直接翻转）
+  const sarcasm = detectSarcasm(text)
+  if (sarcasm.isSarcasm) {
+    const flippedScore = sarcasm.flipTo === 'negative' ? 2 : 4
+    return buildResult(flippedScore, 0.75, '检测到反讽/调侃语气，已调整情绪判断', ['反讽语气'])
+  }
+
   // 检测反转模式
   const { hasReversal, afterIndex } = detectReversal(text)
 
