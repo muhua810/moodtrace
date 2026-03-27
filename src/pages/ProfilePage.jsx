@@ -653,7 +653,7 @@ export default function ProfilePage() {
           <h2 className="text-sm font-medium theme-text">关于</h2>
         </div>
         <div className="text-xs theme-text-tertiary space-y-1">
-          <p>情绪日历 v1.9.1</p>
+          <p>情绪日历 v1.9.2</p>
           <p>中国大学生计算机设计大赛参赛作品</p>
           <p>AI 驱动的情绪追踪与可视化应用</p>
           <p className="mt-2 theme-text-muted">
