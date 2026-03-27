@@ -1,0 +1,423 @@
+@import "tailwindcss";
+
+/* 全局焦点样式：替换浏览器默认黄框 */
+*:focus {
+  outline: none;
+}
+*:focus-visible {
+  outline: 2px solid rgba(236, 72, 153, 0.5);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+button:focus-visible {
+  outline: 2px solid rgba(236, 72, 153, 0.5);
+  outline-offset: 2px;
+}
+
+/* ===== Theme CSS Variables ===== */
+:root,
+[data-theme="light"] {
+  /* Surfaces */
+  --theme-bg: #faf5ff;
+  --theme-bg-gradient: linear-gradient(135deg, #faf5ff 0%, #fdf2f8 50%, #f5f3ff 100%);
+  --theme-surface: rgba(255, 255, 255, 0.85);
+  --theme-surface-hover: rgba(255, 255, 255, 0.95);
+  --theme-card: rgba(255, 255, 255, 0.7);
+  --theme-card-hover: rgba(255, 255, 255, 0.85);
+  --theme-input: rgba(241, 245, 249, 0.8);
+
+  /* Text */
+  --theme-text: #1e1b4b;
+  --theme-text-secondary: #6b7280;
+  --theme-text-tertiary: #9ca3af;
+  --theme-text-muted: #c4b5fd;
+
+  /* Borders */
+  --theme-border: rgba(139, 92, 246, 0.12);
+  --theme-border-strong: rgba(139, 92, 246, 0.2);
+
+  /* Accent */
+  --theme-accent: #a855f7;
+  --theme-accent-soft: rgba(168, 85, 247, 0.12);
+
+  /* Scrollbar */
+  --theme-scrollbar: #c4b5fd;
+}
+
+[data-theme="dark"] {
+  --theme-bg: #1a1625;
+  --theme-bg-gradient: linear-gradient(135deg, #1a1625 0%, #231a2e 50%, #1e1528 100%);
+  --theme-surface: rgba(255, 235, 245, 0.06);
+  --theme-surface-hover: rgba(255, 235, 245, 0.10);
+  --theme-card: rgba(255, 235, 245, 0.06);
+  --theme-card-hover: rgba(255, 235, 245, 0.08);
+  --theme-input: rgba(30, 25, 40, 0.8);
+
+  --theme-text: #ede9f3;
+  --theme-text-secondary: #a1a8bc;
+  --theme-text-tertiary: #7a8499;
+  --theme-text-muted: #5c6578;
+
+  --theme-border: rgba(255, 200, 220, 0.1);
+  --theme-border-strong: rgba(255, 200, 220, 0.15);
+
+  --theme-accent: #c084fc;
+  --theme-accent-soft: rgba(192, 132, 252, 0.12);
+
+  --theme-scrollbar: #3d4556;
+}
+
+/* Mood colors (shared) */
+:root {
+  --mood-very-low: #ef4444;
+  --mood-low: #f97316;
+  --mood-neutral: #eab308;
+  --mood-good: #22c55e;
+  --mood-very-good: #6366f1;
+}
+
+/* ===== Tailwind v4 Custom Utilities ===== */
+@utility theme-bg {
+  background: var(--theme-bg-gradient);
+  color: var(--theme-text);
+}
+
+@utility theme-text {
+  color: var(--theme-text);
+}
+
+@utility theme-text-secondary {
+  color: var(--theme-text-secondary);
+}
+
+@utility theme-text-tertiary {
+  color: var(--theme-text-tertiary);
+}
+
+@utility theme-text-muted {
+  color: var(--theme-text-muted);
+}
+
+@utility theme-surface {
+  background: var(--theme-surface);
+  border: 1px solid var(--theme-border);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+@utility theme-surface-hover {
+  background: var(--theme-surface-hover);
+  border-color: var(--theme-border-strong);
+}
+
+@utility theme-input {
+  background: var(--theme-input);
+  border: 1px solid var(--theme-border);
+  color: var(--theme-text);
+}
+
+@utility theme-border {
+  border-color: var(--theme-border);
+}
+
+@utility theme-border-strong {
+  border-color: var(--theme-border-strong);
+}
+
+/* ===== Base Styles ===== */
+* {
+  -webkit-tap-highlight-color: transparent;
+}
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  background: var(--theme-bg-gradient);
+  color: var(--theme-text);
+  overflow-x: hidden;
+  min-height: 100vh;
+  transition: background 0.4s ease, color 0.3s ease;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--theme-scrollbar);
+  border-radius: 2px;
+}
+
+/* Focus visible for accessibility */
+:focus-visible {
+  outline: 2px solid rgba(244, 114, 182, 0.5);
+  outline-offset: 2px;
+  border-radius: 8px;
+}
+
+/* Screen reader only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: 0.5rem 1rem;
+  margin: 0;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Animations */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes pulse-soft {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes slideInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes scaleIn {
+  from {
+    opacity: 0;
+    transform: scale(0.9);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -20px);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, 0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.5s ease-out both;
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s ease-out both;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2s ease-in-out infinite;
+}
+
+.animate-slide-in-right {
+  animation: slideInFromRight 0.4s ease-out both;
+}
+
+.animate-scale-in {
+  animation: scaleIn 0.3s ease-out both;
+}
+
+.animate-slide-down {
+  animation: slideDown 0.3s ease-out both;
+}
+
+/* Staggered animation children */
+.stagger-children > *:nth-child(1) { animation-delay: 0ms; }
+.stagger-children > *:nth-child(2) { animation-delay: 60ms; }
+.stagger-children > *:nth-child(3) { animation-delay: 120ms; }
+.stagger-children > *:nth-child(4) { animation-delay: 180ms; }
+.stagger-children > *:nth-child(5) { animation-delay: 240ms; }
+
+/* Heatmap cell */
+.heatmap-cell {
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+.heatmap-cell:hover {
+  transform: scale(1.3);
+  filter: brightness(1.2);
+  z-index: 10;
+}
+
+.heatmap-hit-area:focus {
+  outline: none;
+}
+.heatmap-hit-area:focus-visible {
+  outline: 2px solid rgba(244, 114, 182, 0.6);
+  outline-offset: 1px;
+}
+
+/* Glass morphism */
+.glass {
+  background: var(--theme-card);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--theme-border);
+  transition: background 0.3s ease, border-color 0.3s ease;
+}
+
+.glass:hover {
+  background: var(--theme-card-hover);
+  border-color: var(--theme-border-strong);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #c084fc, #f472b6, #fb7185);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Button press feedback */
+button {
+  transition: transform 0.15s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+button:active {
+  transform: scale(0.97);
+}
+
+/* Smooth page transitions */
+.page-enter {
+  opacity: 0;
+  transform: translateY(10px);
+}
+.page-enter-active {
+  opacity: 1;
+  transform: translateY(0);
+  transition: opacity 300ms ease, transform 300ms ease;
+}
+
+/* Reduce motion for accessibility */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Print styles */
+@media print {
+  .glass {
+    background: white !important;
+    border: 1px solid #ccc !important;
+  }
+
+  body {
+    background: white !important;
+    color: black !important;
+  }
+
+  nav {
+    display: none !important;
+  }
+}
+
+/* ===== Micro-interaction Animations ===== */
+
+/* 记录成功：scale + color pulse */
+@keyframes successPulse {
+  0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.4); }
+  50% { transform: scale(1.03); box-shadow: 0 0 0 8px rgba(34, 197, 94, 0); }
+  100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
+}
+.animate-success-pulse {
+  animation: successPulse 0.6s ease-out both;
+}
+
+/* 今日卡片 hover 上浮 */
+@keyframes floatUp {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+.hover-float {
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+.hover-float:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+/* 情绪 emoji 弹跳动画 */
+@keyframes emojiBounce {
+  0% { transform: scale(1); }
+  30% { transform: scale(1.3); }
+  50% { transform: scale(0.9); }
+  70% { transform: scale(1.1); }
+  100% { transform: scale(1); }
+}
+.animate-emoji-bounce {
+  animation: emojiBounce 0.4s ease-out both;
+}
+
+/* 数字 count-up 效果 */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-count-up {
+  animation: countUp 0.5s ease-out both;
+}
+
+/* 热力图格子 hover 放大 + 阴影（CSS 补充 SVG hover） */
+.hover-zoom {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.hover-zoom:hover {
+  transform: scale(1.15);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+  z-index: 10;
+}
+
+/* 渐入动画（页面级别） */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.animate-page-enter {
+  animation: pageEnter 0.35s ease-out both;
+}

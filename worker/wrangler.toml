@@ -1,0 +1,11 @@
+name = "mood-calendar-api"
+main = "src/index.js"
+compatibility_date = "2026-03-24"
+account_id = "b0196d54b42b31cfed827fbc3c5320ae"
+
+kv_namespaces = [
+  { binding = "MOOD_STATS", id = "0d4df27b7c3545eb8bf7f0f2ee16837b" }
+]
+
+[vars]
+ENVIRONMENT = "production"
