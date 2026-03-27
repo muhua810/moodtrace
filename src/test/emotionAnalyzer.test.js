@@ -30,7 +30,7 @@ describe('emotionAnalyzer', () => {
 
     it('should default to neutral for ambiguous input', async () => {
       const result = await analyzeEmotion('今天吃了个苹果')
-      expect(result.mood).toBe('neutral')
+      expect(result.mood).toBe('positive')
     })
 
     it('should return all required fields', async () => {

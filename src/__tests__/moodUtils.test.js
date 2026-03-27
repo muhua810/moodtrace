@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { MOOD_TYPES, getMoodColor, getMoodBgClass, getMoodTextClass, getMoodList } from '../utils/moodUtils'
+import { MOOD_TYPES, getMoodColor, getMoodBgClass, getMoodList } from '../utils/moodUtils'
 
 describe('moodUtils', () => {
   describe('MOOD_TYPES', () => {
@@ -30,15 +30,15 @@ describe('moodUtils', () => {
 
   describe('getMoodColor', () => {
     it('should return correct color for valid mood', () => {
-      expect(getMoodColor('very_positive')).toBe('#8b5cf6')
+      expect(getMoodColor('very_positive')).toBe('#6366f1')
       expect(getMoodColor('positive')).toBe('#22c55e')
       expect(getMoodColor('negative')).toBe('#f97316')
     })
 
     it('should return fallback for invalid mood', () => {
-      expect(getMoodColor('invalid')).toBe('#e8ddd4')
-      expect(getMoodColor('')).toBe('#e8ddd4')
-      expect(getMoodColor(null)).toBe('#e8ddd4')
+      expect(getMoodColor('invalid')).toBe('rgba(180, 160, 190, 0.2)')
+      expect(getMoodColor('')).toBe('rgba(180, 160, 190, 0.2)')
+      expect(getMoodColor(null)).toBe('rgba(180, 160, 190, 0.2)')
     })
   })
 
@@ -48,17 +48,7 @@ describe('moodUtils', () => {
     })
 
     it('should return fallback for invalid mood', () => {
-      expect(getMoodBgClass('invalid')).toContain('bg-gray')
-    })
-  })
-
-  describe('getMoodTextClass', () => {
-    it('should return text class for valid mood', () => {
-      expect(getMoodTextClass('positive')).toContain('text-')
-    })
-
-    it('should return fallback for invalid mood', () => {
-      expect(getMoodTextClass('invalid')).toContain('text-gray')
+      expect(getMoodBgClass('invalid')).toContain('bg-slate')
     })
   })
 
