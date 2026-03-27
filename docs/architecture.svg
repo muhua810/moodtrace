@@ -1,0 +1,163 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 620" font-family="'Segoe UI', 'PingFang SC', 'Microsoft YaHei', sans-serif">
+  <defs>
+    <linearGradient id="headerGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#ec4899"/>
+      <stop offset="100%" stop-color="#f43f5e"/>
+    </linearGradient>
+    <linearGradient id="cloudGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#ef4444"/>
+    </linearGradient>
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="2" stdDeviation="4" flood-opacity="0.12" flood-color="#000"/>
+    </filter>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="2" result="blur"/>
+      <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+  </defs>
+
+  <rect width="960" height="620" rx="16" fill="#0f172a"/>
+
+  <text x="480" y="38" text-anchor="middle" fill="white" font-size="18" font-weight="700" opacity="0.95">情绪日历 · 技术架构</text>
+
+  <rect x="40" y="60" width="560" height="280" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+  <rect x="40" y="60" width="560" height="36" rx="12" fill="#334155"/>
+  <circle cx="60" cy="78" r="5" fill="#ef4444"/><circle cx="78" cy="78" r="5" fill="#eab308"/><circle cx="96" cy="78" r="5" fill="#22c55e"/>
+  <text x="280" y="83" text-anchor="middle" fill="#94a3b8" font-size="12">🌐 用户浏览器</text>
+
+  <text x="280" y="112" text-anchor="middle" fill="#64748b" font-size="11">React 19 · React Router v7 · Tailwind CSS v4</text>
+
+  <rect x="60" y="125" width="520" height="44" rx="8" fill="#1a1a2e" stroke="#475569" stroke-width="1" stroke-dasharray="4 2"/>
+  <text x="75" y="143" fill="#94a3b8" font-size="10" font-weight="600">页面层</text>
+  <rect x="120" y="132" width="80" height="28" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="160" y="151" text-anchor="middle" fill="#a5b4fc" font-size="10">HomePage</text>
+  <rect x="210" y="132" width="85" height="28" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="252" y="151" text-anchor="middle" fill="#a5b4fc" font-size="10">RecordPage</text>
+  <rect x="305" y="132" width="78" height="28" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="344" y="151" text-anchor="middle" fill="#a5b4fc" font-size="10">StatsPage</text>
+  <rect x="393" y="132" width="90" height="28" rx="6" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="438" y="151" text-anchor="middle" fill="#a5b4fc" font-size="10">ProfilePage</text>
+
+  <rect x="60" y="180" width="520" height="44" rx="8" fill="#1a1a2e" stroke="#475569" stroke-width="1" stroke-dasharray="4 2"/>
+  <text x="75" y="198" fill="#94a3b8" font-size="10" font-weight="600">组件层</text>
+  <rect x="120" y="187" width="100" height="28" rx="6" fill="#1a2e1a" stroke="#22c55e" stroke-width="1"/>
+  <text x="170" y="206" text-anchor="middle" fill="#86efac" font-size="10">HeatmapCalendar</text>
+  <rect x="230" y="187" width="72" height="28" rx="6" fill="#1a2e1a" stroke="#22c55e" stroke-width="1"/>
+  <text x="266" y="206" text-anchor="middle" fill="#86efac" font-size="10">CaringCard</text>
+  <rect x="312" y="187" width="85" height="28" rx="6" fill="#1a2e1a" stroke="#22c55e" stroke-width="1"/>
+  <text x="354" y="206" text-anchor="middle" fill="#86efac" font-size="10">KeywordCloud</text>
+  <rect x="407" y="187" width="82" height="28" rx="6" fill="#1a2e1a" stroke="#22c55e" stroke-width="1"/>
+  <text x="448" y="206" text-anchor="middle" fill="#86efac" font-size="10">MiniTrend</text>
+  <rect x="499" y="187" width="75" height="28" rx="6" fill="#1a2e1a" stroke="#22c55e" stroke-width="1"/>
+  <text x="536" y="206" text-anchor="middle" fill="#86efac" font-size="10">Onboarding</text>
+
+  <rect x="60" y="235" width="520" height="44" rx="8" fill="#1a1a2e" stroke="#475569" stroke-width="1" stroke-dasharray="4 2"/>
+  <text x="75" y="253" fill="#94a3b8" font-size="10" font-weight="600">服务层</text>
+  <rect x="120" y="242" width="120" height="28" rx="6" fill="#2e1a1a" stroke="#f472b6" stroke-width="1"/>
+  <text x="180" y="261" text-anchor="middle" fill="#f9a8d4" font-size="10">emotionAnalyzer</text>
+  <rect x="250" y="242" width="70" height="28" rx="6" fill="#2e1a1a" stroke="#f472b6" stroke-width="1"/>
+  <text x="285" y="261" text-anchor="middle" fill="#f9a8d4" font-size="10">storage</text>
+  <rect x="330" y="242" width="95" height="28" rx="6" fill="#2e1a1a" stroke="#f472b6" stroke-width="1"/>
+  <text x="377" y="261" text-anchor="middle" fill="#f9a8d4" font-size="10">apiService</text>
+  <rect x="435" y="242" width="105" height="28" rx="6" fill="#2e1a1a" stroke="#f472b6" stroke-width="1"/>
+  <text x="487" y="261" text-anchor="middle" fill="#f9a8d4" font-size="10">backupService</text>
+
+  <rect x="60" y="290" width="250" height="40" rx="8" fill="#1a2e2a" stroke="#14b8a6" stroke-width="1"/>
+  <text x="185" y="315" text-anchor="middle" fill="#5eead4" font-size="11" font-weight="600">🧠 关键词分析引擎</text>
+  <text x="185" y="328" text-anchor="middle" fill="#2dd4bf" font-size="8">140+ 关键词 · 29 否定词 · 反讽检测 · 网络用语</text>
+
+  <rect x="330" y="290" width="250" height="40" rx="8" fill="#2e1a2e" stroke="#a855f7" stroke-width="1"/>
+  <text x="455" y="315" text-anchor="middle" fill="#d8b4fe" font-size="11" font-weight="600">🔒 AES-256-GCM 加密存储</text>
+  <text x="455" y="328" text-anchor="middle" fill="#c084fc" font-size="8">Web Crypto API · 纯前端 · 数据不出设备</text>
+
+  <rect x="640" y="60" width="280" height="280" rx="12" fill="#1e293b" stroke="#f59e0b" stroke-width="1.5" stroke-opacity="0.4" filter="url(#shadow)"/>
+  <rect x="640" y="60" width="280" height="36" rx="12" fill="#422006"/>
+  <text x="780" y="83" text-anchor="middle" fill="#fbbf24" font-size="12" font-weight="600">☁️ Cloudflare 边缘</text>
+
+  
+  <rect x="660" y="110" width="240" height="100" rx="8" fill="#1c1917" stroke="#78716c" stroke-width="1"/>
+  <text x="780" y="132" text-anchor="middle" fill="#fbbf24" font-size="11" font-weight="600">Cloudflare Worker</text>
+
+  <rect x="672" y="142" width="105" height="24" rx="5" fill="#292524" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="724" y="159" text-anchor="middle" fill="#fcd34d" font-size="9">POST /api/analyze</text>
+
+  <rect x="785" y="142" width="105" height="24" rx="5" fill="#292524" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="837" y="159" text-anchor="middle" fill="#fcd34d" font-size="9">POST /api/backup</text>
+
+  <rect x="672" y="172" width="105" height="24" rx="5" fill="#292524" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="724" y="189" text-anchor="middle" fill="#fcd34d" font-size="9">GET /api/backup</text>
+
+  <rect x="785" y="172" width="105" height="24" rx="5" fill="#292524" stroke="#f59e0b" stroke-width="0.8"/>
+  <text x="837" y="189" text-anchor="middle" fill="#fcd34d" font-size="9">POST /api/stats</text>
+
+  <rect x="660" y="225" width="240" height="50" rx="8" fill="#1c1917" stroke="#78716c" stroke-width="1"/>
+  <text x="780" y="247" text-anchor="middle" fill="#a8a29e" font-size="11" font-weight="600">Cloudflare KV</text>
+  <text x="780" y="265" text-anchor="middle" fill="#78716c" font-size="9">备份数据 · 匿名统计 · 设备 ID 索引</text>
+
+  <line x1="580" y1="170" x2="660" y2="140" stroke="#475569" stroke-width="1.5" stroke-dasharray="6 3"/>
+  <polygon points="656,136 664,140 656,144" fill="#475569"/>
+  <text x="610" y="145" text-anchor="middle" fill="#64748b" font-size="8">HTTPS</text>
+
+  <line x1="780" y1="210" x2="780" y2="225" stroke="#78716c" stroke-width="1"/>
+  <polygon points="776,221 780,229 784,221" fill="#78716c"/>
+
+  <rect x="40" y="370" width="880" height="110" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="460" y="396" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="600">⚡ AI 分析三级降级策略</text>
+
+  <rect x="65" y="410" width="170" height="55" rx="8" fill="url(#headerGrad)" opacity="0.9"/>
+  <text x="150" y="432" text-anchor="middle" fill="white" font-size="11" font-weight="600">Level 1 · Workers AI</text>
+  <text x="150" y="450" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="9">DeepSeek 代理 · 零配置可用</text>
+
+  <line x1="235" y1="437" x2="270" y2="437" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="266,433 274,437 266,441" fill="#64748b"/>
+  <text x="252" y="428" text-anchor="middle" fill="#ef4444" font-size="8">失败</text>
+
+  <rect x="275" y="410" width="170" height="55" rx="8" fill="#7c3aed" opacity="0.85"/>
+  <text x="360" y="432" text-anchor="middle" fill="white" font-size="11" font-weight="600">Level 2 · 用户自定义 API</text>
+  <text x="360" y="450" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="9">OpenAI / 自定义模型 · API Key</text>
+
+  <line x1="445" y1="437" x2="480" y2="437" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="476,433 484,437 476,441" fill="#64748b"/>
+  <text x="462" y="428" text-anchor="middle" fill="#ef4444" font-size="8">失败</text>
+
+  <rect x="485" y="410" width="195" height="55" rx="8" fill="#0d9488" opacity="0.85"/>
+  <text x="582" y="432" text-anchor="middle" fill="white" font-size="11" font-weight="600">Level 3 · 本地关键词引擎</text>
+  <text x="582" y="450" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="9">离线可用 · 分句加权 · 反讽检测</text>
+
+  <rect x="700" y="410" width="200" height="55" rx="8" fill="#475569" opacity="0.7"/>
+  <text x="800" y="432" text-anchor="middle" fill="white" font-size="11" font-weight="600">兜底 · TF-IDF + 朴素贝叶斯</text>
+  <text x="800" y="450" text-anchor="middle" fill="rgba(255,255,255,0.75)" font-size="9">statisticalAnalyzer 泛化补充</text>
+
+  <line x1="680" y1="437" x2="700" y2="437" stroke="#64748b" stroke-width="1.5"/>
+  <polygon points="696,433 704,437 696,441" fill="#64748b"/>
+  <text x="690" y="428" text-anchor="middle" fill="#ef4444" font-size="8">低置信</text>
+
+  <rect x="40" y="500" width="880" height="100" rx="12" fill="#1e293b" stroke="#334155" stroke-width="1.5" filter="url(#shadow)"/>
+  <text x="460" y="526" text-anchor="middle" fill="#94a3b8" font-size="12" font-weight="600">🛠️ 技术栈</text>
+
+  <rect x="65" y="540" width="130" height="48" rx="8" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="130" y="560" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">前端框架</text>
+  <text x="130" y="576" text-anchor="middle" fill="#818cf8" font-size="8">React 19 · Vite 8</text>
+
+  <rect x="210" y="540" width="130" height="48" rx="8" fill="#1e1b4b" stroke="#6366f1" stroke-width="1"/>
+  <text x="275" y="560" text-anchor="middle" fill="#a5b4fc" font-size="10" font-weight="600">路由 &amp; 样式</text>
+  <text x="275" y="576" text-anchor="middle" fill="#818cf8" font-size="8">React Router v7 · Tailwind v4</text>
+
+  <rect x="355" y="540" width="130" height="48" rx="8" fill="#1a2e2a" stroke="#14b8a6" stroke-width="1"/>
+  <text x="420" y="560" text-anchor="middle" fill="#5eead4" font-size="10" font-weight="600">可视化</text>
+  <text x="420" y="576" text-anchor="middle" fill="#2dd4bf" font-size="8">自研 SVG · Recharts</text>
+
+  <rect x="500" y="540" width="130" height="48" rx="8" fill="#2e1a1a" stroke="#f472b6" stroke-width="1"/>
+  <text x="565" y="560" text-anchor="middle" fill="#f9a8d4" font-size="10" font-weight="600">安全</text>
+  <text x="565" y="576" text-anchor="middle" fill="#f472b6" font-size="8">Web Crypto · DOMPurify</text>
+
+  <rect x="645" y="540" width="130" height="48" rx="8" fill="#292524" stroke="#f59e0b" stroke-width="1"/>
+  <text x="710" y="560" text-anchor="middle" fill="#fcd34d" font-size="10" font-weight="600">后端 &amp; 部署</text>
+  <text x="710" y="576" text-anchor="middle" fill="#fbbf24" font-size="8">Workers · KV · Pages</text>
+
+  <rect x="790" y="540" width="115" height="48" rx="8" fill="#1a2e1a" stroke="#22c55e" stroke-width="1"/>
+  <text x="847" y="560" text-anchor="middle" fill="#86efac" font-size="10" font-weight="600">测试</text>
+  <text x="847" y="576" text-anchor="middle" fill="#4ade80" font-size="8">Vitest · 164 用例</text>
+
+</svg>
