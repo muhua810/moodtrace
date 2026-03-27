@@ -1,58 +1,85 @@
-// 情绪类型定义
+// 情绪类型定义 — 丰富色彩 + 渐变
 export const MOOD_TYPES = {
   very_negative: {
     key: 'very_negative',
     label: '非常低落',
-    emoji: '😢',
+    emoji: '🌧️',
     color: '#ef4444',
+    colorLight: '#fca5a5',
+    gradient: 'linear-gradient(135deg, #ef4444, #dc2626)',
     bgClass: 'bg-red-500/20 border-red-500/30',
-    intensity: 1
+    glowColor: 'rgba(239, 68, 68, 0.15)',
+    intensity: 1,
   },
   negative: {
     key: 'negative',
     label: '有点难过',
-    emoji: '😟',
+    emoji: '🌥️',
     color: '#f97316',
+    colorLight: '#fdba74',
+    gradient: 'linear-gradient(135deg, #f97316, #ea580c)',
     bgClass: 'bg-orange-500/20 border-orange-500/30',
-    intensity: 2
+    glowColor: 'rgba(249, 115, 22, 0.15)',
+    intensity: 2,
   },
   neutral: {
     key: 'neutral',
     label: '一般般',
-    emoji: '😐',
+    emoji: '🌤️',
     color: '#eab308',
+    colorLight: '#fde047',
+    gradient: 'linear-gradient(135deg, #eab308, #ca8a04)',
     bgClass: 'bg-yellow-500/20 border-yellow-500/30',
-    intensity: 3
+    glowColor: 'rgba(234, 179, 8, 0.15)',
+    intensity: 3,
   },
   positive: {
     key: 'positive',
     label: '心情不错',
-    emoji: '😊',
+    emoji: '☀️',
     color: '#22c55e',
+    colorLight: '#86efac',
+    gradient: 'linear-gradient(135deg, #22c55e, #16a34a)',
     bgClass: 'bg-green-500/20 border-green-500/30',
-    intensity: 4
+    glowColor: 'rgba(34, 197, 94, 0.15)',
+    intensity: 4,
   },
   very_positive: {
     key: 'very_positive',
     label: '超级开心',
-    emoji: '🥰',
+    emoji: '🌈',
     color: '#6366f1',
+    colorLight: '#a5b4fc',
+    gradient: 'linear-gradient(135deg, #6366f1, #8b5cf6)',
     bgClass: 'bg-indigo-500/20 border-indigo-500/30',
-    intensity: 5
-  }
+    glowColor: 'rgba(99, 102, 241, 0.15)',
+    intensity: 5,
+  },
 }
 
-// 获取情绪对应的颜色（用于热力图）
+// 获取情绪对应的颜色
 export function getMoodColor(moodKey) {
-  const mood = MOOD_TYPES[moodKey]
-  if (!mood) return 'rgba(180, 160, 190, 0.2)'
-  return mood.color
+  return MOOD_TYPES[moodKey]?.color || 'rgba(180, 160, 190, 0.2)'
+}
+
+// 获取情绪渐变
+export function getMoodGradient(moodKey) {
+  return MOOD_TYPES[moodKey]?.gradient || MOOD_TYPES.neutral.gradient
+}
+
+// 获取情绪发光色
+export function getMoodGlow(moodKey) {
+  return MOOD_TYPES[moodKey]?.glowColor || 'rgba(0,0,0,0)'
+}
+
+// 获取情绪浅色
+export function getMoodColorLight(moodKey) {
+  return MOOD_TYPES[moodKey]?.colorLight || '#e5e7eb'
 }
 
 // 获取情绪对应的 CSS 类
 export function getMoodBgClass(moodKey) {
-  const mood = MOOD_TYPES[moodKey]
-  return mood?.bgClass || 'bg-slate-800/30 border-slate-700/30'
+  return MOOD_TYPES[moodKey]?.bgClass || 'bg-slate-800/30 border-slate-700/30'
 }
 
 // 获取所有情绪类型列表
@@ -60,7 +87,7 @@ export function getMoodList() {
   return Object.values(MOOD_TYPES)
 }
 
-// 安全转义 HTML，防止 XSS
+// 安全转义 HTML
 export function escapeHtml(text) {
   if (!text) return ''
   const div = document.createElement('div')
@@ -68,7 +95,7 @@ export function escapeHtml(text) {
   return div.innerHTML
 }
 
-// 截断文本，超出部分显示省略号
+// 截断文本
 export function truncateText(text, maxLength = 100) {
   if (!text) return ''
   if (text.length <= maxLength) return text
@@ -77,24 +104,16 @@ export function truncateText(text, maxLength = 100) {
 
 // 格式化情绪强度为星星
 export function formatIntensityStars(intensity) {
-  const filled = '★'.repeat(intensity)
-  const empty = '☆'.repeat(5 - intensity)
-  return filled + empty
+  return '★'.repeat(intensity) + '☆'.repeat(5 - intensity)
 }
 
-/**
- * 格式化相对日期
- * @param {string} dateStr - YYYY-MM-DD
- * @returns {string}
- */
+// 格式化相对日期
 export function formatRelativeDate(dateStr) {
   const MS_PER_DAY = 86400000
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-
   const date = new Date(dateStr + 'T00:00:00')
   const diff = Math.round((today - date) / MS_PER_DAY)
-
   if (diff === 0) return '今天'
   if (diff === 1) return '昨天'
   if (diff === 2) return '前天'
@@ -102,11 +121,7 @@ export function formatRelativeDate(dateStr) {
   return dateStr
 }
 
-/**
- * 获取本地日期字符串 YYYY-MM-DD（避免 toISOString 的时区问题）
- * @param {Date} date - 日期对象，默认当前时间
- * @returns {string} YYYY-MM-DD
- */
+// 获取本地日期字符串
 export function getLocalDateString(date = new Date()) {
   const year = date.getFullYear()
   const month = String(date.getMonth() + 1).padStart(2, '0')

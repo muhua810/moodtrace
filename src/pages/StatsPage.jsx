@@ -683,19 +683,19 @@ function AnnualReport({ records, navigate }) {
   if (yearRecords.length === 0) {
     return (
       <div className="text-center py-12">
-        <div className="text-4xl mb-3">📊</div>
-        <p className="theme-text-secondary text-sm">今年还没有记录，开始记录吧！</p>
+        <div className="text-5xl mb-4 animate-float">📖</div>
+        <p className="theme-text-secondary text-sm mb-4">今年的故事还没有开始</p>
         <button
           onClick={() => navigate('/record')}
-          className="mt-4 px-5 py-2 rounded-xl bg-pink-500 hover:bg-pink-400 text-white text-sm font-medium transition-all"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-pink-500 to-purple-500 hover:from-pink-400 hover:to-purple-400 text-white text-sm font-medium transition-all"
         >
-          去记录
+          写下第一笔
         </button>
       </div>
     )
   }
 
-  // 年度数据
+  // ====== 年度数据计算 ======
   const yearMoodCounts = {}
   Object.keys(MOOD_TYPES).forEach(k => yearMoodCounts[k] = 0)
   yearRecords.forEach(r => { if (yearMoodCounts[r.mood] !== undefined) yearMoodCounts[r.mood]++ })
@@ -703,13 +703,14 @@ function AnnualReport({ records, navigate }) {
   const yearAvg = yearRecords.reduce((s, r) => s + (MOOD_TYPES[r.mood]?.intensity || 3), 0) / yearRecords.length
   const sortedYear = [...yearRecords].sort((a, b) => a.date.localeCompare(b.date))
 
-  // 最佳月份
+  // 月度分析
   const monthScores = {}
   yearRecords.forEach(r => {
     const m = r.date.slice(5, 7)
-    if (!monthScores[m]) monthScores[m] = { sum: 0, count: 0 }
+    if (!monthScores[m]) monthScores[m] = { sum: 0, count: 0, moods: {} }
     monthScores[m].sum += MOOD_TYPES[r.mood]?.intensity || 3
     monthScores[m].count++
+    monthScores[m].moods[r.mood] = (monthScores[m].moods[r.mood] || 0) + 1
   })
   let bestMonth = null, worstMonth = null
   Object.entries(monthScores).forEach(([m, d]) => {
@@ -721,12 +722,8 @@ function AnnualReport({ records, navigate }) {
   // 最佳连续天数
   let bestStreak = 0, currentStreak = 0
   yearRecords.forEach(r => {
-    if (r.mood === 'positive' || r.mood === 'very_positive') {
-      currentStreak++
-      bestStreak = Math.max(bestStreak, currentStreak)
-    } else {
-      currentStreak = 0
-    }
+    if (r.mood === 'positive' || r.mood === 'very_positive') { currentStreak++; bestStreak = Math.max(bestStreak, currentStreak) }
+    else currentStreak = 0
   })
 
   // 最常见情绪
@@ -738,131 +735,233 @@ function AnnualReport({ records, navigate }) {
   const daysInYear = Math.max(1, Math.round((new Date() - yearStart) / 86400000))
   const recordRate = Math.round((yearRecords.length / daysInYear) * 100)
 
-  // 12 个月情绪趋势数据
-  const monthNames = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
-  const monthlyTrend = monthNames.map((name, idx) => {
+  // 月度趋势 + 情绪河流图数据
+  const monthLabels = ['1月','2月','3月','4月','5月','6月','7月','8月','9月','10月','11月','12月']
+  const monthlyTrend = monthLabels.map((name, idx) => {
     const monthStr = String(idx + 1).padStart(2, '0')
-    const monthRecords = yearRecords.filter(r => r.date.slice(5, 7) === monthStr)
-    const avg = monthRecords.length > 0
-      ? monthRecords.reduce((s, r) => s + (MOOD_TYPES[r.mood]?.intensity || 3), 0) / monthRecords.length
-      : 0
-    return { month: name, avg: Number(avg.toFixed(1)), count: monthRecords.length }
+    const mr = yearRecords.filter(r => r.date.slice(5, 7) === monthStr)
+    const avg = mr.length > 0 ? mr.reduce((s, r) => s + (MOOD_TYPES[r.mood]?.intensity || 3), 0) / mr.length : 0
+    return { month: name, avg: Number(avg.toFixed(1)), count: mr.length }
   })
 
-  // 年度关键词云（从记录中提取关键词并统计频率）
-  const ANNUAL_STOP_WORDS = new Set([
-    '的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一',
-    '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有',
-    '看', '好', '自己', '这', '他', '她', '它', '们', '那', '些', '什么', '怎么',
-    '还是', '因为', '所以', '但是', '然后', '如果', '虽然', '今天', '感觉',
-    '觉得', '有点', '真的', '可以', '已经', '没有', '不是', '不想', '不过',
-    '一直', '一下', '一些', '这些', '那些', '这样', '那样', '这么', '那么',
-    '一天', '一次', '一样', '一点', '一段', '一件', '一场', '一种',
-  ])
-
-  const extractAnnualKeywords = (text) => {
-    if (!text) return []
-    const cleanText = text.replace(/[^\u4e00-\u9fff\uf900-\ufaffa-zA-Z]/g, ' ')
-    return cleanText.split(/\s+/).filter(s => s.length >= 2 && s.length <= 6 && !ANNUAL_STOP_WORDS.has(s))
-  }
-
-  const keywordFreq = {}
-  yearRecords.forEach(r => {
-    // 优先使用情绪分析器返回的关键词
-    if (Array.isArray(r.keywords) && r.keywords.length > 0) {
-      r.keywords.forEach(kw => {
-        if (kw && kw.length >= 2 && kw.length <= 10 && !ANNUAL_STOP_WORDS.has(kw)) {
-          keywordFreq[kw] = (keywordFreq[kw] || 0) + 1
-        }
-      })
+  // 情绪河流图：每月各情绪占比
+  const riverData = monthLabels.map((name, idx) => {
+    const monthStr = String(idx + 1).padStart(2, '0')
+    const mr = yearRecords.filter(r => r.date.slice(5, 7) === monthStr)
+    const total = mr.length || 1
+    const counts = {}
+    Object.keys(MOOD_TYPES).forEach(k => counts[k] = 0)
+    mr.forEach(r => { if (counts[r.mood] !== undefined) counts[r.mood]++ })
+    return {
+      month: name,
+      very_negative: Math.round(counts.very_negative / total * 100),
+      negative: Math.round(counts.negative / total * 100),
+      neutral: Math.round(counts.neutral / total * 100),
+      positive: Math.round(counts.positive / total * 100),
+      very_positive: Math.round(counts.very_positive / total * 100),
     }
-    // 同时从文本中提取内容关键词
-    extractAnnualKeywords(r.text).forEach(w => {
-      keywordFreq[w] = (keywordFreq[w] || 0) + 1
-    })
   })
-  const sortedKeywords = Object.entries(keywordFreq)
-    .filter(([, count]) => count >= 2)
-    .sort(([,a],[,b]) => b - a)
-    .slice(0, 20)
+
+  // 年度关键词
+  const STOP = new Set(['的','了','在','是','我','有','和','就','不','人','都','一','一个','上','也','很','到','说','要','去','你','会','着','没有','看','好','自己','这','他','她','它','们','那','些','什么','怎么','还是','因为','所以','但是','然后','如果','虽然','今天','感觉','觉得','有点','真的','可以','已经','不是','不想','不过','一直','一下','一些','这些','那些','这样','那样','这么','那么','一天','一次','一样','一点','一种'])
+  const kwFreq = {}
+  yearRecords.forEach(r => {
+    if (Array.isArray(r.keywords)) r.keywords.forEach(kw => { if (kw?.length >= 2 && kw.length <= 10 && !STOP.has(kw)) kwFreq[kw] = (kwFreq[kw]||0)+1 })
+    if (r.text) r.text.replace(/[^\u4e00-\u9fff\uf900-\ufaffa-zA-Z]/g,' ').split(/\s+/).filter(s => s.length>=2 && s.length<=6 && !STOP.has(s)).forEach(w => { kwFreq[w]=(kwFreq[w]||0)+1 })
+  })
+  const sortedKeywords = Object.entries(kwFreq).filter(([,c])=>c>=2).sort(([,a],[,b])=>b-a).slice(0,20)
+
+  // 情绪故事线：每月一句话
+  const monthStories = monthLabels.map((name, idx) => {
+    const monthStr = String(idx + 1).padStart(2, '0')
+    const mr = yearRecords.filter(r => r.date.slice(5, 7) === monthStr)
+    if (!mr.length) return { month: name, story: '没有记录', emoji: '·', moodKey: 'neutral' }
+    const avg = mr.reduce((s,r)=>s+(MOOD_TYPES[r.mood]?.intensity||3),0)/mr.length
+    let story, moodKey
+    if (avg >= 4.5) { story = '阳光灿烂的一个月'; moodKey = 'very_positive' }
+    else if (avg >= 3.8) { story = '总体愉快，充满希望'; moodKey = 'positive' }
+    else if (avg >= 3.2) { story = '平静如水，波澜不惊'; moodKey = 'neutral' }
+    else if (avg >= 2.5) { story = '有些坎坷，但依然前行'; moodKey = 'negative' }
+    else { story = '经历了一段低谷时光'; moodKey = 'very_negative' }
+    return { month: name, story, emoji: MOOD_TYPES[moodKey]?.emoji, moodKey, avg, count: mr.length }
+  })
 
   // 年度寄语
   const getMessage = () => {
-    if (yearAvg >= 4.5) return '🌟 这一年你过得太棒了！满满的正能量，愿你永远保持这份快乐和光芒。'
-    if (yearAvg >= 4) return '🎉 这一年你过得很好！多数日子里你都是快乐的，继续保持这份积极的心态~'
-    if (yearAvg >= 3.5) return '🌱 这一年总体平稳且积极，你很棒！记录让生活更有觉察力，加油！'
-    if (yearAvg >= 3) return '🌈 这一年有起有伏，这就是生活的样子。你坚持记录的情绪，就是最好的成长见证。'
-    if (yearAvg >= 2.5) return '💙 这一年可能有些辛苦，但请记住：每一个困难的日子都在让你变得更坚强。'
-    return '💛 这一年你经历了不少低谷，但你仍然在记录、在面对。这份勇气很珍贵，新的一年愿你被温柔以待。'
+    if (yearAvg >= 4.5) return { text: '这一年你过得太棒了！满满的正能量，愿你永远保持这份快乐和光芒。', icon: '🌟' }
+    if (yearAvg >= 4) return { text: '这一年你过得很好！多数日子里你都是快乐的，继续保持这份积极的心态~', icon: '🎉' }
+    if (yearAvg >= 3.5) return { text: '这一年总体平稳且积极，你很棒！记录让生活更有觉察力，加油！', icon: '🌱' }
+    if (yearAvg >= 3) return { text: '这一年有起有伏，这就是生活的样子。你坚持记录的情绪，就是最好的成长见证。', icon: '🌈' }
+    if (yearAvg >= 2.5) return { text: '这一年可能有些辛苦，但请记住：每一个困难的日子都在让你变得更坚强。', icon: '💙' }
+    return { text: '你经历了不少低谷，但你仍然在记录、在面对。这份勇气很珍贵，愿你被温柔以待。', icon: '💛' }
   }
+  const annualMsg = getMessage()
+
+  // 情绪环形图 SVG 数据
+  const ringSize = 140, ringStroke = 12, ringRadius = (ringSize - ringStroke) / 2
+  const ringCirc = 2 * Math.PI * ringRadius
+  const moodRingData = Object.entries(yearMoodCounts)
+    .filter(([,c]) => c > 0)
+    .sort(([,a],[,b]) => b - a)
+    .map(([key, count]) => ({
+      key,
+      count,
+      pct: count / yearRecords.length,
+      color: MOOD_TYPES[key]?.color,
+      label: MOOD_TYPES[key]?.label,
+      emoji: MOOD_TYPES[key]?.emoji,
+    }))
+
+  let ringOffset = 0
+  const ringSegments = moodRingData.map(d => {
+    const segLen = d.pct * ringCirc
+    const segDasharray = `${segLen} ${ringCirc - segLen}`
+    const segOffset = -ringOffset
+    ringOffset += segLen
+    return { ...d, dasharray: segDasharray, offset: segOffset }
+  })
 
   return (
-    <>
-      {/* 年度封面 */}
-      <div className="card p-6 text-center relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 via-purple-500/10 to-indigo-500/10" />
+    <div className="space-y-4">
+      {/* ====== 第一页：年度封面 ====== */}
+      <div className="card annual-cover p-8 text-center relative overflow-hidden animate-card-flip">
         <div className="relative">
-          <div className="text-5xl mb-2">{topMoodInfo?.emoji || '📝'}</div>
-          <h2 className="text-xl font-bold gradient-text mb-1">{currentYear} 年度情绪报告</h2>
-          <p className="text-xs theme-text-tertiary">你的这一年，被情绪记录了 {yearRecords.length} 天</p>
-        </div>
-      </div>
-
-      {/* 核心数据 */}
-      <div className="grid grid-cols-2 gap-3">
-        <StatCard icon={<Calendar size={16} />} label="记录天数" value={yearRecords.length} unit="天" color="text-pink-400" delay={0} />
-        <StatCard icon={<TrendingUp size={16} />} label="年度均分" value={yearAvg.toFixed(1)} unit="/5" color="text-green-400" delay={100} />
-        <StatCard icon={<Award size={16} />} label="记录率" value={recordRate} unit="%" color="text-indigo-400" delay={200} />
-        <StatCard icon={<Flame size={16} />} label="最佳连击" value={bestStreak} unit="天" color="text-orange-400" delay={300} />
-      </div>
-
-      {/* 最常情绪 */}
-      <div className="card p-4">
-        <h3 className="text-sm font-semibold theme-text mb-3">年度主旋律</h3>
-        <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-xl flex items-center justify-center text-3xl" style={{ backgroundColor: topMoodInfo?.color + '20' }}>
-            {topMoodInfo?.emoji}
-          </div>
-          <div>
-            <p className="text-lg font-bold theme-text">{topMoodInfo?.label}</p>
-            <p className="text-xs theme-text-tertiary">
-              出现 {topYearMood?.[1]} 次，占 {Math.round(topYearMood?.[1] / yearRecords.length * 100)}%
-            </p>
+          <div className="text-6xl mb-3 animate-float">{topMoodInfo?.emoji || '📝'}</div>
+          <h2 className="text-2xl font-bold gradient-text mb-1">{currentYear}</h2>
+          <p className="text-sm font-medium theme-text mb-1">年度情绪报告</p>
+          <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-white/10 text-xs theme-text-tertiary mt-2">
+            <span>共记录</span>
+            <span className="text-base font-bold gradient-text">{yearRecords.length}</span>
+            <span>天</span>
           </div>
         </div>
       </div>
 
-      {/* 月度对比 */}
-      {(bestMonth || worstMonth) && (
-        <div className="card p-4">
-          <h3 className="text-sm font-semibold theme-text mb-3">月度对比</h3>
-          <div className="grid grid-cols-2 gap-3">
-            {bestMonth && (
-              <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
-                <p className="text-2xl mb-1">🌟</p>
-                <p className="text-sm font-medium text-green-400">{parseInt(bestMonth.month)}月</p>
-                <p className="text-xs theme-text-tertiary mt-1">最佳月份 ({bestMonth.avg.toFixed(1)}/5)</p>
+      {/* ====== 第二页：核心数据仪表盘 ====== */}
+      <div className="card p-5 animate-card-flip" style={{ animationDelay: '100ms' }}>
+        <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
+          年度数据总览
+        </h3>
+        <div className="grid grid-cols-2 gap-4">
+          {/* 年度均分 — 带环形进度 */}
+          <div className="text-center">
+            <div className="relative inline-flex items-center justify-center w-20 h-20 mb-2">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="var(--theme-border)" strokeWidth="5" />
+                <circle cx="40" cy="40" r="34" fill="none" stroke="url(#avgGrad)" strokeWidth="5"
+                  strokeLinecap="round" strokeDasharray={`${(yearAvg/5)*213.6} 213.6`}
+                  transform="rotate(-90 40 40)" />
+                <defs>
+                  <linearGradient id="avgGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor="#a78bfa" />
+                    <stop offset="100%" stopColor="#f472b6" />
+                  </linearGradient>
+                </defs>
+              </svg>
+              <span className="absolute text-xl font-bold theme-text">{yearAvg.toFixed(1)}</span>
+            </div>
+            <p className="text-xs theme-text-tertiary">年度均分 /5</p>
+          </div>
+          {/* 记录率 — 带环形进度 */}
+          <div className="text-center">
+            <div className="relative inline-flex items-center justify-center w-20 h-20 mb-2">
+              <svg width="80" height="80" viewBox="0 0 80 80">
+                <circle cx="40" cy="40" r="34" fill="none" stroke="var(--theme-border)" strokeWidth="5" />
+                <circle cx="40" cy="40" r="34" fill="none" stroke="#6366f1" strokeWidth="5"
+                  strokeLinecap="round" strokeDasharray={`${(Math.min(recordRate,100)/100)*213.6} 213.6`}
+                  transform="rotate(-90 40 40)" />
+              </svg>
+              <span className="absolute text-xl font-bold theme-text">{recordRate}<span className="text-xs">%</span></span>
+            </div>
+            <p className="text-xs theme-text-tertiary">记录率</p>
+          </div>
+          <StatCard icon={<Flame size={16} />} label="最佳快乐连击" value={bestStreak} unit="天" color="text-orange-400" delay={200} />
+          <StatCard icon={<Calendar size={16} />} label="记录天数" value={yearRecords.length} unit="天" color="text-pink-400" delay={300} />
+        </div>
+      </div>
+
+      {/* ====== 第三页：年度主旋律 + 情绪环形图 ====== */}
+      <div className="card p-5 animate-card-flip" style={{ animationDelay: '200ms' }}>
+        <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
+          年度情绪图谱
+        </h3>
+        <div className="flex items-center gap-5">
+          {/* SVG 环形图 */}
+          <div className="shrink-0" style={{ width: ringSize, height: ringSize }}>
+            <svg width={ringSize} height={ringSize} viewBox={`0 0 ${ringSize} ${ringSize}`}>
+              {/* 背景环 */}
+              <circle cx={ringSize/2} cy={ringSize/2} r={ringRadius} fill="none" stroke="var(--theme-border)" strokeWidth={ringStroke} />
+              {/* 情绪段 */}
+              {ringSegments.map((seg, i) => (
+                <circle key={seg.key} cx={ringSize/2} cy={ringSize/2} r={ringRadius}
+                  fill="none" stroke={seg.color} strokeWidth={ringStroke}
+                  strokeDasharray={seg.dasharray} strokeDashoffset={seg.offset}
+                  strokeLinecap="butt"
+                  transform={`rotate(-90 ${ringSize/2} ${ringSize/2})`}
+                  style={{ transition: 'stroke-dasharray 0.8s ease' }}
+                />
+              ))}
+              {/* 中心文字 */}
+              <text x={ringSize/2} y={ringSize/2 - 8} textAnchor="middle" fill="var(--theme-text)" fontSize="24">
+                {topMoodInfo?.emoji}
+              </text>
+              <text x={ringSize/2} y={ringSize/2 + 14} textAnchor="middle" fill="var(--theme-text-secondary)" fontSize="10">
+                年度主旋律
+              </text>
+            </svg>
+          </div>
+          {/* 图例 */}
+          <div className="flex-1 space-y-2">
+            {moodRingData.map(d => (
+              <div key={d.key} className="flex items-center gap-2">
+                <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: d.color }} />
+                <span className="text-xs theme-text-secondary flex-1">{d.emoji} {d.label}</span>
+                <span className="text-xs theme-text-tertiary">{Math.round(d.pct * 100)}%</span>
               </div>
-            )}
-            {worstMonth && (
-              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-center">
-                <p className="text-2xl mb-1">💙</p>
-                <p className="text-sm font-medium text-blue-400">{parseInt(worstMonth.month)}月</p>
-                <p className="text-xs theme-text-tertiary mt-1">需要关怀 ({worstMonth.avg.toFixed(1)}/5)</p>
-              </div>
-            )}
+            ))}
           </div>
         </div>
-      )}
+      </div>
 
-      {/* 12 个月情绪趋势面积图 */}
-      <div className="card p-4">
-        <h3 className="text-sm font-semibold theme-text mb-3">12 个月情绪趋势</h3>
+      {/* ====== 第四页：12 个月情绪河流图 ====== */}
+      <div className="card p-5 animate-card-flip" style={{ animationDelay: '300ms' }}>
+        <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-blue-400"></span>
+          情绪河流 · 12 个月变化
+        </h3>
+        <div style={{ width: '100%', height: 200 }}>
+          <ResponsiveContainer>
+            <AreaChart data={riverData} stackOffset="expand">
+              <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border)" vertical={false} />
+              <XAxis dataKey="month" tick={{ fontSize: 9, fill: 'var(--theme-text-tertiary)' }} axisLine={false} tickLine={false} />
+              <YAxis tick={{ fontSize: 9, fill: 'var(--theme-text-tertiary)' }} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${Math.round(v*100)}%`} />
+              <Tooltip
+                contentStyle={{ background: 'var(--theme-bg)', border: '1px solid var(--theme-border)', borderRadius: 10, fontSize: 11, color: 'var(--theme-text)' }}
+                formatter={(value, name) => [`${Math.round(value*100)}%`, MOOD_TYPES[name]?.label || name]}
+              />
+              <Area type="monotone" dataKey="very_positive" stackId="1" stroke="none" fill="#6366f1" fillOpacity={0.8} />
+              <Area type="monotone" dataKey="positive" stackId="1" stroke="none" fill="#22c55e" fillOpacity={0.8} />
+              <Area type="monotone" dataKey="neutral" stackId="1" stroke="none" fill="#eab308" fillOpacity={0.8} />
+              <Area type="monotone" dataKey="negative" stackId="1" stroke="none" fill="#f97316" fillOpacity={0.8} />
+              <Area type="monotone" dataKey="very_negative" stackId="1" stroke="none" fill="#ef4444" fillOpacity={0.8} />
+            </AreaChart>
+          </ResponsiveContainer>
+        </div>
+      </div>
+
+      {/* ====== 第五页：月度趋势折线 ====== */}
+      <div className="card p-5 animate-card-flip" style={{ animationDelay: '350ms' }}>
+        <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-green-400"></span>
+          月度心情均值
+        </h3>
         <div style={{ width: '100%', height: 180 }}>
           <ResponsiveContainer>
             <AreaChart data={monthlyTrend}>
               <defs>
-                <linearGradient id="yearMoodGrad" x1="0" y1="0" x2="0" y2="1">
+                <linearGradient id="yearGrad2" x1="0" y1="0" x2="0" y2="1">
                   <stop offset="5%" stopColor="#c084fc" stopOpacity={0.3} />
                   <stop offset="95%" stopColor="#c084fc" stopOpacity={0} />
                 </linearGradient>
@@ -870,71 +969,93 @@ function AnnualReport({ records, navigate }) {
               <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border)" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 10, fill: 'var(--theme-text-tertiary)' }} axisLine={false} tickLine={false} />
               <YAxis domain={[0, 5]} tick={{ fontSize: 10, fill: 'var(--theme-text-tertiary)' }} axisLine={false} tickLine={false} width={20} />
-              <Tooltip
-                contentStyle={{
-                  background: 'var(--theme-bg)',
-                  border: '1px solid var(--theme-border)',
-                  borderRadius: 8,
-                  fontSize: 12,
-                  color: 'var(--theme-text)',
-                }}
-                formatter={(value, name) => {
-                  if (name === 'avg') return [value > 0 ? `${value}/5` : '无数据', '平均心情']
-                  return [value, name]
-                }}
-              />
-              <Area type="monotone" dataKey="avg" stroke="#c084fc" strokeWidth={2} fill="url(#yearMoodGrad)" connectNulls={false} />
+              <Tooltip contentStyle={{ background: 'var(--theme-bg)', border: '1px solid var(--theme-border)', borderRadius: 8, fontSize: 12, color: 'var(--theme-text)' }}
+                formatter={(value) => [value > 0 ? `${value}/5` : '无数据', '平均心情']} />
+              <Area type="monotone" dataKey="avg" stroke="#c084fc" strokeWidth={2.5} fill="url(#yearGrad2)" connectNulls={false}
+                dot={{ r: 4, fill: '#c084fc', stroke: 'var(--theme-bg)', strokeWidth: 2 }}
+                activeDot={{ r: 6, stroke: '#c084fc', strokeWidth: 2, fill: 'var(--theme-bg)' }} />
             </AreaChart>
           </ResponsiveContainer>
         </div>
       </div>
 
-      {/* 年度情绪分布 */}
-      <div className="card p-4">
-        <h3 className="text-sm font-semibold theme-text mb-3">年度情绪图谱</h3>
-        <div className="space-y-2">
-          {Object.entries(yearMoodCounts)
-            .filter(([, c]) => c > 0)
-            .sort(([,a],[,b]) => b - a)
-            .map(([key, count]) => {
-              const mood = MOOD_TYPES[key]
-              const pct = Math.round((count / yearRecords.length) * 100)
-              return (
-                <div key={key} className="flex items-center gap-2">
-                  <span className="text-base w-5 text-center">{mood?.emoji}</span>
-                  <span className="text-xs theme-text-secondary w-14">{mood?.label}</span>
-                  <div className="flex-1 h-2 rounded-full bg-white/5">
-                    <div
-                      className="h-full rounded-full transition-all duration-700"
-                      style={{ width: `${pct}%`, backgroundColor: mood?.color }}
-                    />
+      {/* ====== 第六页：情绪故事线 ====== */}
+      <div className="card p-5 animate-card-flip" style={{ animationDelay: '400ms' }}>
+        <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+          <span className="w-1.5 h-1.5 rounded-full bg-rose-400"></span>
+          这一年的情绪故事
+        </h3>
+        <div className="relative pl-6 space-y-4">
+          {/* 时间轴线 */}
+          <div className="absolute left-2.5 top-1 bottom-1 w-px bg-gradient-to-b from-purple-400/40 via-pink-400/30 to-transparent" />
+          {monthStories.filter(s => s.count > 0).map((ms, i) => {
+            const moodColor = MOOD_TYPES[ms.moodKey]?.color || '#9ca3af'
+            return (
+              <div key={ms.month} className="relative animate-fade-in-up" style={{ animationDelay: `${i * 60}ms` }}>
+                <div className="absolute -left-3.5 top-1 w-3 h-3 rounded-full border-2" style={{ borderColor: moodColor, backgroundColor: 'var(--theme-bg)' }} />
+                <div className="flex items-start gap-3">
+                  <span className="text-lg shrink-0">{ms.emoji}</span>
+                  <div>
+                    <p className="text-xs font-medium theme-text">{ms.month}</p>
+                    <p className="text-xs theme-text-secondary mt-0.5">{ms.story}</p>
+                    {ms.avg > 0 && <p className="text-[10px] theme-text-tertiary mt-0.5">{ms.avg.toFixed(1)}/5 · {ms.count}天记录</p>}
                   </div>
-                  <span className="text-xs theme-text-tertiary w-12 text-right">{count}次 ({pct}%)</span>
                 </div>
-              )
-            })}
+              </div>
+            )
+          })}
         </div>
       </div>
 
-      {/* 年度关键词云 */}
+      {/* ====== 第七页：月度对比 ====== */}
+      {(bestMonth || worstMonth) && (
+        <div className="card p-5 animate-card-flip" style={{ animationDelay: '450ms' }}>
+          <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-yellow-400"></span>
+            月度对比
+          </h3>
+          <div className="grid grid-cols-2 gap-4">
+            {bestMonth && (
+              <div className="p-4 rounded-xl text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(34,197,94,0.1), rgba(34,197,94,0.02))' }}>
+                <div className="absolute inset-0 border border-green-500/20 rounded-xl" />
+                <p className="text-3xl mb-2">🌟</p>
+                <p className="text-lg font-bold text-green-400">{parseInt(bestMonth.month)}月</p>
+                <p className="text-xs theme-text-tertiary mt-1">最佳月份</p>
+                <p className="text-2xl font-bold text-green-400 mt-2">{bestMonth.avg.toFixed(1)}<span className="text-xs font-normal theme-text-tertiary">/5</span></p>
+              </div>
+            )}
+            {worstMonth && (
+              <div className="p-4 rounded-xl text-center relative overflow-hidden" style={{ background: 'linear-gradient(135deg, rgba(99,102,241,0.1), rgba(99,102,241,0.02))' }}>
+                <div className="absolute inset-0 border border-indigo-500/20 rounded-xl" />
+                <p className="text-3xl mb-2">💙</p>
+                <p className="text-lg font-bold text-indigo-400">{parseInt(worstMonth.month)}月</p>
+                <p className="text-xs theme-text-tertiary mt-1">需要关怀</p>
+                <p className="text-2xl font-bold text-indigo-400 mt-2">{worstMonth.avg.toFixed(1)}<span className="text-xs font-normal theme-text-tertiary">/5</span></p>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+
+      {/* ====== 第八页：年度关键词 ====== */}
       {sortedKeywords.length > 0 && (
-        <div className="card p-4">
-          <h3 className="text-sm font-semibold theme-text mb-3">年度关键词</h3>
-          <div className="flex flex-wrap gap-2 items-center justify-center">
+        <div className="card p-5 animate-card-flip" style={{ animationDelay: '500ms' }}>
+          <h3 className="text-sm font-semibold theme-text mb-4 flex items-center gap-2">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400"></span>
+            年度关键词
+          </h3>
+          <div className="flex flex-wrap gap-2.5 items-center justify-center py-2">
             {sortedKeywords.map(([keyword, count], idx) => {
               const maxCount = sortedKeywords[0][1]
               const ratio = count / maxCount
-              const size = Math.round(12 + ratio * 12) // 12px ~ 24px
-              const opacity = 0.5 + ratio * 0.5
-              const colors = ['#f472b6', '#c084fc', '#818cf8', '#60a5fa', '#34d399', '#fbbf24']
+              const size = Math.round(13 + ratio * 13)
+              const colors = ['#f472b6', '#c084fc', '#818cf8', '#60a5fa', '#34d399', '#fbbf24', '#fb923c', '#a78bfa']
               const color = colors[idx % colors.length]
               return (
-                <span
-                  key={keyword}
-                  className="inline-block px-2 py-1 rounded-lg hover:bg-white/5 transition-colors cursor-default"
-                  style={{ fontSize: `${size}px`, color, opacity }}
-                  title={`${count}次`}
-                >
+                <span key={keyword}
+                  className="inline-block px-2.5 py-1 rounded-lg cursor-default transition-all duration-200 hover:scale-110"
+                  style={{ fontSize: `${size}px`, color, backgroundColor: `${color}12`, opacity: 0.65 + ratio * 0.35 }}
+                  title={`${count}次`}>
                   {keyword}
                 </span>
               )
@@ -943,10 +1064,19 @@ function AnnualReport({ records, navigate }) {
         </div>
       )}
 
-      {/* 年度寄语 */}
-      <div className="card p-5 text-center">
-        <p className="text-sm theme-text-secondary leading-relaxed">{getMessage()}</p>
+      {/* ====== 最后一页：年度寄语 ====== */}
+      <div className="card p-6 text-center relative overflow-hidden animate-card-flip" style={{ animationDelay: '550ms' }}>
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-pink-500/5 to-transparent" />
+        <div className="relative">
+          <div className="text-4xl mb-3">{annualMsg.icon}</div>
+          <p className="text-sm theme-text-secondary leading-relaxed max-w-xs mx-auto">{annualMsg.text}</p>
+          <div className="mt-4 flex items-center justify-center gap-1.5">
+            <div className="w-8 h-px bg-gradient-to-r from-transparent to-purple-400/30" />
+            <span className="text-[10px] theme-text-muted">记录让生活更有觉察力</span>
+            <div className="w-8 h-px bg-gradient-to-l from-transparent to-purple-400/30" />
+          </div>
+        </div>
       </div>
-    </>
+    </div>
   )
 }

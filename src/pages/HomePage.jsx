@@ -19,23 +19,33 @@ function truncate(str, max = 80) {
 export default function HomePage() {
   const [records, setRecords] = useState(() => getAllRecords())
   const [loading, setLoading] = useState(() => {
-    // 加密模式下同步读取为空，需要等待异步加载
     try {
       return localStorage.getItem('mood_calendar_enc_enabled') === 'true'
     } catch { return false }
   })
+  // 移动端默认月视图，桌面端默认热力图
   const [viewMode, setViewMode] = useState(() => {
-    if (typeof window !== 'undefined' && window.innerWidth < 640) return 'month'
+    if (typeof window !== 'undefined' && window.innerWidth < 768) return 'month'
     return 'heatmap'
   })
   const [importingDemo, setImportingDemo] = useState(false)
-  // 首次引导：Onboarding 完成后显示引导提示
   const [showGuide, setShowGuide] = useState(() => {
-    try {
-      return localStorage.getItem('mood_calendar_show_guide') === 'true'
-    } catch { return false }
+    try { return localStorage.getItem('mood_calendar_show_guide') === 'true' } catch { return false }
   })
+  const [greeting, setGreeting] = useState('')
   const navigate = useNavigate()
+
+  // 根据时间设置问候语
+  useEffect(() => {
+    const hour = new Date().getHours()
+    if (hour < 6) setGreeting('夜深了，早点休息 🌙')
+    else if (hour < 9) setGreeting('早安，新的一天 ☀️')
+    else if (hour < 12) setGreeting('上午好 🌤️')
+    else if (hour < 14) setGreeting('中午好 🌞')
+    else if (hour < 18) setGreeting('下午好 ☁️')
+    else if (hour < 22) setGreeting('晚上好 🌆')
+    else setGreeting('夜深了 🌙')
+  }, [])
 
   // 初始化：异步加载（支持加密模式）
   useEffect(() => {
@@ -124,27 +134,31 @@ export default function HomePage() {
       <header className="flex items-center justify-between mb-6">
         <div>
           <h1 className="text-xl font-bold gradient-text">情绪日历</h1>
-          <p className="text-xs theme-text-tertiary mt-1">
-            {new Date().toLocaleDateString('zh-CN', {
-              year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
-            })}
-          </p>
+          {greeting && <p className="text-xs theme-text-secondary mt-1">{greeting}</p>}
         </div>
-        <button
-          onClick={() => navigate('/profile')}
-          className="p-2 rounded-xl hover:bg-white/10 theme-text-tertiary hover:theme-text transition-colors"
-          aria-label="设置"
-        >
-          <Settings size={18} />
-        </button>
+        <div className="flex items-center gap-2">
+          <span className="text-xs theme-text-tertiary hidden sm:inline">
+            {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' })}
+          </span>
+          <button
+            onClick={() => navigate('/profile')}
+            className="p-2 rounded-xl hover:bg-white/10 theme-text-tertiary hover:theme-text transition-colors"
+            aria-label="设置"
+          >
+            <Settings size={18} />
+          </button>
+        </div>
       </header>
 
-      {/* 今日卡片 */}
-      <div className="card p-4 mb-4 hover-float">
-        <div className="flex items-center gap-3">
-          <div className={`w-12 h-12 rounded-xl flex items-center justify-center text-2xl ${
+      {/* 今日卡片 — 带情绪光晕 */}
+      <div className="card p-5 mb-4 hover-float" style={todayRecord ? { boxShadow: `0 0 40px ${MOOD_TYPES[todayRecord.mood]?.color}12` } : undefined}>
+        <div className="flex items-center gap-4">
+          <div className={`w-14 h-14 rounded-2xl flex items-center justify-center text-3xl transition-all duration-500 ${
             todayRecord ? '' : 'bg-white/5'
-          }`} style={todayRecord ? { backgroundColor: MOOD_TYPES[todayRecord.mood]?.color + '20' } : undefined}>
+          }`} style={todayRecord ? {
+            background: `linear-gradient(135deg, ${MOOD_TYPES[todayRecord.mood]?.color}18, ${MOOD_TYPES[todayRecord.mood]?.color}08)`,
+            boxShadow: `0 4px 20px ${MOOD_TYPES[todayRecord.mood]?.color}15`,
+          } : undefined}>
             {todayRecord ? MOOD_TYPES[todayRecord.mood]?.emoji : '📝'}
           </div>
           <div className="flex-1">
@@ -152,12 +166,13 @@ export default function HomePage() {
               {todayRecord ? '今日已记录' : '今天感觉怎么样？'}
             </p>
             <p className="text-xs theme-text-tertiary mt-0.5">
-              {todayRecord ? todayRecord.moodLabel : '点击记录你的心情'}
+              {todayRecord ? todayRecord.moodLabel : '一句话记录你的心情'}
             </p>
           </div>
           <button
             onClick={() => navigate(`/record?date=${todayStr}${todayRecord ? '&edit=true' : ''}`)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white text-sm font-medium transition-all active:scale-95"
+            className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-white text-sm font-medium transition-all active:scale-95"
+            style={{ background: todayRecord ? MOOD_TYPES[todayRecord.mood]?.gradient : 'linear-gradient(135deg, #a78bfa, #f472b6)' }}
           >
             <Plus size={16} />
             {todayRecord ? '修改' : '记录'}

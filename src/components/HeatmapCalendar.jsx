@@ -6,19 +6,26 @@ import { getMoodColor } from '../utils/moodUtils'
 const MONTH_LABELS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一', '十二']
 const DAY_LABELS = ['', '一', '', '三', '', '五', '']
 
-const CELL_SIZE = 12
+const CELL_SIZE = 13
 const CELL_GAP = 3
 const TOTAL_SIZE = CELL_SIZE + CELL_GAP
-const HIT_SIZE = Math.max(CELL_SIZE, 44) // 增大触摸热区到 44px（WCAG 标准）
+const HIT_SIZE = Math.max(CELL_SIZE, 44)
 const HIT_OFFSET = (HIT_SIZE - CELL_SIZE) / 2
 
+// 移动端更小的尺寸
+const CELL_SIZE_MOBILE = 10
+const CELL_GAP_MOBILE = 2
+const TOTAL_SIZE_MOBILE = CELL_SIZE_MOBILE + CELL_GAP_MOBILE
+const HIT_SIZE_MOBILE = Math.max(CELL_SIZE_MOBILE, 44)
+const HIT_OFFSET_MOBILE = (HIT_SIZE_MOBILE - CELL_SIZE_MOBILE) / 2
+
 // ── Tooltip 子组件 ──
-function HeatmapTooltip({ cellX, cellY, day, moodLabel, svgWidth }) {
-  const TOOLTIP_WIDTH = 100
-  const TOOLTIP_HEIGHT = 24
-  const below = cellY / TOTAL_SIZE <= 1
-  const y = below ? cellY + CELL_SIZE + 4 : cellY - TOOLTIP_HEIGHT - 4
-  let x = cellX - 40
+function HeatmapTooltip({ cellX, cellY, day, moodLabel, svgWidth, cellSize: cs, totalSize: ts }) {
+  const TOOLTIP_WIDTH = 110
+  const TOOLTIP_HEIGHT = 26
+  const below = cellY / ts <= 1
+  const y = below ? cellY + cs + 4 : cellY - TOOLTIP_HEIGHT - 4
+  let x = cellX - 45
   if (x < 0) x = 0
   if (x + TOOLTIP_WIDTH > svgWidth) x = svgWidth - TOOLTIP_WIDTH
   const textX = x + TOOLTIP_WIDTH / 2
@@ -28,16 +35,17 @@ function HeatmapTooltip({ cellX, cellY, day, moodLabel, svgWidth }) {
       <rect
         x={x} y={y}
         width={TOOLTIP_WIDTH} height={TOOLTIP_HEIGHT}
-        rx={4}
+        rx={6}
         fill="var(--theme-bg)"
         stroke="var(--theme-border-strong)"
-        strokeWidth={0.5}
-        style={{ pointerEvents: 'none' }}
+        strokeWidth={0.8}
+        style={{ pointerEvents: 'none', filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.15))' }}
       />
       <text
-        x={textX} y={y + 16}
+        x={textX} y={y + 17}
         fill="var(--theme-text)"
         fontSize={10}
+        fontWeight="500"
         textAnchor="middle"
         style={{ pointerEvents: 'none' }}
       >
@@ -51,7 +59,7 @@ function HeatmapTooltip({ cellX, cellY, day, moodLabel, svgWidth }) {
 function HeatmapCell({
   day, dateStr, record, color,
   isToday, isFuture, isHovered, isSelected,
-  cellX, cellY, svgWidth,
+  cellX, cellY, svgWidth, cellSize: cs, totalSize: ts, hitSize: hs, hitOffset: ho,
   onHover, onBlur, onClick,
 }) {
   const moodLabel = record?.moodLabel || '未记录'
@@ -62,10 +70,10 @@ function HeatmapCell({
     <g>
       {/* 扩大触摸区域 */}
       <rect
-        x={cellX - HIT_OFFSET}
-        y={cellY - HIT_OFFSET}
-        width={HIT_SIZE}
-        height={HIT_SIZE}
+        x={cellX - ho}
+        y={cellY - ho}
+        width={hs}
+        height={hs}
         fill="transparent"
         className="heatmap-hit-area"
         role="gridcell"
@@ -84,29 +92,29 @@ function HeatmapCell({
       <rect
         x={cellX}
         y={cellY}
-        width={CELL_SIZE}
-        height={CELL_SIZE}
-        rx={2}
+        width={cs}
+        height={cs}
+        rx={2.5}
         fill={isFuture ? 'rgba(160, 140, 170, 0.05)' : color}
-        opacity={isFuture ? 0.3 : (isActive && !isFuture ? 1 : record ? 0.75 : 0.12)}
+        opacity={isFuture ? 0.3 : (isActive && !isFuture ? 1 : record ? 0.8 : 0.1)}
         stroke={isSelected ? '#f472b6' : isToday ? '#6366f1' : 'none'}
         strokeWidth={isSelected ? 2.5 : isToday ? 1.5 : 0}
         pointerEvents="none"
-        style={{ transition: 'opacity 0.15s ease' }}
+        style={{ transition: 'opacity 0.2s ease, fill 0.2s ease' }}
       />
       {/* 选中发光效果 */}
       {isSelected && !isFuture && (
         <>
           <rect
             x={cellX - 2.5} y={cellY - 2.5}
-            width={CELL_SIZE + 5} height={CELL_SIZE + 5}
+            width={cs + 5} height={cs + 5}
             rx={5} fill="none"
             stroke="#f472b6" strokeWidth={1.5} opacity={0.5}
             pointerEvents="none"
           />
           <rect
             x={cellX - 4} y={cellY - 4}
-            width={CELL_SIZE + 8} height={CELL_SIZE + 8}
+            width={cs + 8} height={cs + 8}
             rx={6} fill="none"
             stroke="#f472b6" strokeWidth={0.8} opacity={0.2}
             pointerEvents="none"
@@ -121,6 +129,8 @@ function HeatmapCell({
           day={day}
           moodLabel={moodLabel}
           svgWidth={svgWidth}
+          cellSize={cs}
+          totalSize={ts}
         />
       )}
     </g>
@@ -136,6 +146,14 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
   const [canScrollRight, setCanScrollRight] = useState(true)
   const scrollRef = useRef(null)
   const currentYear = new Date().getFullYear()
+
+  // 响应式尺寸
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 640
+  const cellSize = isMobile ? CELL_SIZE_MOBILE : CELL_SIZE
+  const cellGap = isMobile ? CELL_GAP_MOBILE : CELL_GAP
+  const totalSize = isMobile ? TOTAL_SIZE_MOBILE : TOTAL_SIZE
+  const hitSize = isMobile ? HIT_SIZE_MOBILE : HIT_SIZE
+  const hitOffset = isMobile ? HIT_OFFSET_MOBILE : HIT_OFFSET
 
   const recordMap = useMemo(() => {
     const map = {}
@@ -175,7 +193,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
     return positions
   }, [weeks])
 
-  const svgWidth = weeks.length * TOTAL_SIZE + CELL_GAP
+  const svgWidth = weeks.length * totalSize + cellGap
 
   const handleDayClick = useCallback((dateStr, record, isFuture) => {
     if (isFuture) return
@@ -258,7 +276,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
               {monthPositions.map(({ month, weekIdx }) => (
                 <text
                   key={month}
-                  x={weekIdx * TOTAL_SIZE + CELL_GAP}
+                  x={weekIdx * totalSize + cellGap}
                   y={12}
                   fill="var(--theme-text-tertiary)"
                   fontSize={10}
@@ -272,12 +290,12 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
           {/* 热力图网格 */}
           <div className="flex">
             {/* 星期标签 */}
-            <div className="flex flex-col mr-1" style={{ gap: CELL_GAP }} aria-hidden="true">
+            <div className="flex flex-col mr-1" style={{ gap: cellGap }} aria-hidden="true">
               {DAY_LABELS.map((label, i) => (
                 <div
                   key={i}
                   className="flex items-center justify-end theme-text-tertiary"
-                  style={{ width: 24, height: CELL_SIZE, fontSize: 9 }}
+                  style={{ width: 24, height: cellSize, fontSize: isMobile ? 7 : 9 }}
                 >
                   {label}
                 </div>
@@ -287,7 +305,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
             {/* SVG 格子 */}
             <svg
               width={svgWidth}
-              height={7 * TOTAL_SIZE + CELL_GAP}
+              height={7 * totalSize + cellGap}
               role="grid"
               aria-label={`${year}年每日情绪记录`}
               style={{ touchAction: 'pan-x' }}
@@ -299,8 +317,8 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
                   const color = record ? getMoodColor(record.mood) : 'var(--theme-border)'
                   const isToday = dateStr === format(new Date(), 'yyyy-MM-dd')
                   const isFuture = day > new Date()
-                  const cellX = weekIdx * TOTAL_SIZE + CELL_GAP
-                  const cellY = dayIdx * TOTAL_SIZE + CELL_GAP
+                  const cellX = weekIdx * totalSize + cellGap
+                  const cellY = dayIdx * totalSize + cellGap
 
                   return (
                     <HeatmapCell
@@ -316,6 +334,10 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
                       cellX={cellX}
                       cellY={cellY}
                       svgWidth={svgWidth}
+                      cellSize={cellSize}
+                      totalSize={totalSize}
+                      hitSize={hitSize}
+                      hitOffset={hitOffset}
                       onHover={handleHover}
                       onBlur={handleBlur}
                       onClick={handleDayClick}

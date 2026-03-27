@@ -41,13 +41,10 @@ describe('HomePage', () => {
     expect(screen.getByText('记录')).toBeInTheDocument()
   })
 
-  it('should display the current date', () => {
+  it('should display a greeting', () => {
     renderHomePage()
-    const today = new Date()
-    const dateStr = today.toLocaleDateString('zh-CN', {
-      year: 'numeric', month: 'long', day: 'numeric', weekday: 'long'
-    })
-    expect(screen.getByText(dateStr)).toBeInTheDocument()
+    // Header should show the app title and a time-based greeting
+    expect(screen.getByText('情绪日历')).toBeInTheDocument()
   })
 
   it('should render view mode toggle buttons', () => {
