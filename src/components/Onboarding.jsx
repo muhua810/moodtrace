@@ -1,5 +1,7 @@
 import { useState } from 'react'
-import { PenLine, Sparkles, BarChart3, Shield, ChevronRight } from 'lucide-react'
+import { PenLine, Sparkles, BarChart3, Shield, ChevronRight, Database } from 'lucide-react'
+import { generateDemoData } from '../services/demoData'
+import { saveRecord } from '../services/storage'
 
 const steps = [
   {
@@ -38,14 +40,34 @@ const steps = [
 
 export default function Onboarding({ onComplete }) {
   const [step, setStep] = useState(0)
+  const [importing, setImporting] = useState(false)
   const current = steps[step]
   const isLast = step === steps.length - 1
   const Icon = current.icon
 
+  const handleComplete = (withDemo = false) => {
+    localStorage.setItem('mood_calendar_onboarded', 'true')
+
+    if (withDemo) {
+      setImporting(true)
+      requestAnimationFrame(() => {
+        setTimeout(() => {
+          const demoRecords = generateDemoData(365)
+          for (const record of demoRecords) {
+            saveRecord(record)
+          }
+          window.dispatchEvent(new Event('mood-record-updated'))
+          onComplete()
+        }, 100)
+      })
+    } else {
+      onComplete()
+    }
+  }
+
   const handleNext = () => {
     if (isLast) {
-      localStorage.setItem('mood_calendar_onboarded', 'true')
-      onComplete()
+      handleComplete(false)
     } else {
       setStep(step + 1)
     }
@@ -84,22 +106,45 @@ export default function Onboarding({ onComplete }) {
           ))}
         </div>
 
-        {/* Button */}
-        <button
-          onClick={handleNext}
-          className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-        >
-          {isLast ? '开始使用' : '下一步'}
-          <ChevronRight size={18} />
-        </button>
-
-        {!isLast && (
-          <button
-            onClick={() => { localStorage.setItem('mood_calendar_onboarded', 'true'); onComplete() }}
-            className="mt-3 text-sm theme-text-muted hover:theme-text-secondary transition-colors focus:outline-none"
-          >
-            跳过引导
-          </button>
+        {/* 最后一步：双按钮选择 */}
+        {isLast ? (
+          <div className="space-y-3">
+            <button
+              onClick={() => handleComplete(true)}
+              disabled={importing}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-pink-400/50 disabled:opacity-50"
+            >
+              <Database size={18} />
+              {importing ? '正在导入...' : '导入示例数据，体验全部功能'}
+            </button>
+            <button
+              onClick={() => handleComplete(false)}
+              disabled={importing}
+              className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-white/5 hover:bg-white/10 theme-text-secondary text-sm font-medium transition-all active:scale-[0.98] focus:outline-none disabled:opacity-50"
+            >
+              从零开始，自己记录
+              <ChevronRight size={16} />
+            </button>
+            <p className="text-xs theme-text-tertiary mt-2">
+              导入 365 天模拟数据，可完整体验热力图、统计分析、年度报告等所有功能
+            </p>
+          </div>
+        ) : (
+          <>
+            <button
+              onClick={handleNext}
+              className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-pink-400/50"
+            >
+              下一步
+              <ChevronRight size={18} />
+            </button>
+            <button
+              onClick={() => handleComplete(false)}
+              className="mt-3 text-sm theme-text-muted hover:theme-text-secondary transition-colors focus:outline-none"
+            >
+              跳过引导
+            </button>
+          </>
         )}
       </div>
     </div>
