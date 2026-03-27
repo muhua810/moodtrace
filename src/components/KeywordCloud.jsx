@@ -22,6 +22,7 @@ const STOP_WORDS = new Set([
   '还是', '因为', '所以', '但是', '然后', '如果', '虽然', '今天', '感觉',
   '觉得', '有点', '真的', '可以', '已经', '没有', '不是', '不想', '不过',
   '一直', '一下', '一些', '这些', '那些', '这样', '那样', '这么', '那么',
+  '一天', '一次', '一样', '一点', '一段', '一件', '一场', '一种',
   'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'am',
 ])
 
@@ -42,9 +43,11 @@ function extractKeywordsFromText(text) {
     }
   }
 
-  // 额外提取 bigram
+  // 额外提取 bigram（过滤掉助词开头/结尾的无意义组合）
+  const FUNC_WORDS = new Set(['的', '了', '在', '是', '有', '和', '就', '不', '都', '上', '也', '很', '到', '说', '要', '去', '会', '着', '那', '这', '他', '她', '它', '们', '被', '把', '从', '对', '为', '所', '以', '而', '但', '或', '与', '及', '等', '个', '种', '些', '样', '点'])
   const chars = [...text].filter(c => /[\u4e00-\u9fff]/.test(c))
   for (let i = 0; i < chars.length - 1; i++) {
+    if (FUNC_WORDS.has(chars[i]) || FUNC_WORDS.has(chars[i + 1])) continue
     const bigram = chars[i] + chars[i + 1]
     if (!STOP_WORDS.has(bigram)) {
       words.push(bigram)
