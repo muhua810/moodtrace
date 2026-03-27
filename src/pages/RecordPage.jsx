@@ -97,6 +97,12 @@ export default function RecordPage() {
     try {
       const analysis = await analyzeEmotion(clean)
       setResult(analysis)
+      // 分析结果返回时即判断是否显示关怀卡片（不等保存）
+      if (analysis.mood === 'negative' || analysis.mood === 'very_negative') {
+        setShowCaring(true)
+      } else {
+        setShowCaring(false)
+      }
       // 保持 editing=true，让用户能重新保存
     } catch (e) {
       console.error('分析失败:', e)
@@ -413,33 +419,33 @@ export default function RecordPage() {
               {editing ? '重新保存' : '保存记录'}
             </button>
           ) : (
-            <>
-              <div className="text-center py-3 animate-success-pulse" role="status">
-                <p className="text-green-400 text-sm font-medium">✓ 已保存</p>
-                <div className="flex items-center justify-center gap-4 mt-2">
-                  <button
-                    onClick={() => setEditing(true)}
-                    className="text-sm text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
-                  >
-                    编辑
-                  </button>
-                  <button
-                    onClick={() => navigate('/')}
-                    className="text-sm theme-text-tertiary hover:theme-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
-                  >
-                    返回首页
-                  </button>
-                </div>
+            <div className="text-center py-3 animate-success-pulse" role="status">
+              <p className="text-green-400 text-sm font-medium">✓ 已保存</p>
+              <div className="flex items-center justify-center gap-4 mt-2">
+                <button
+                  onClick={() => setEditing(true)}
+                  className="text-sm text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
+                >
+                  编辑
+                </button>
+                <button
+                  onClick={() => navigate('/')}
+                  className="text-sm theme-text-tertiary hover:theme-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
+                >
+                  返回首页
+                </button>
               </div>
+            </div>
+          )}
 
-              {/* 关怀卡片（负面情绪时显示） */}
-              {showCaring && (
-                <CaringCard
-                  mood={result?.mood}
-                  onClose={() => setShowCaring(false)}
-                />
-              )}
-            </>
+          {/* 关怀卡片：分析结果出来即显示，不等保存 */}
+          {showCaring && result && (
+            <div className="mt-4">
+              <CaringCard
+                mood={result.mood}
+                onClose={() => setShowCaring(false)}
+              />
+            </div>
           )}
         </div>
       )}

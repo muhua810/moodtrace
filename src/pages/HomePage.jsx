@@ -18,16 +18,31 @@ function truncate(str, max = 80) {
 
 export default function HomePage() {
   const [records, setRecords] = useState(() => getAllRecords())
+  const [loading, setLoading] = useState(() => {
+    // 加密模式下同步读取为空，需要等待异步加载
+    try {
+      return localStorage.getItem('mood_calendar_enc_enabled') === 'true'
+    } catch { return false }
+  })
   const [viewMode, setViewMode] = useState(() => {
     if (typeof window !== 'undefined' && window.innerWidth < 640) return 'month'
     return 'heatmap'
   })
   const [importingDemo, setImportingDemo] = useState(false)
+  // 首次引导：Onboarding 完成后显示引导提示
+  const [showGuide, setShowGuide] = useState(() => {
+    try {
+      return localStorage.getItem('mood_calendar_show_guide') === 'true'
+    } catch { return false }
+  })
   const navigate = useNavigate()
 
   // 初始化：异步加载（支持加密模式）
   useEffect(() => {
-    getAllRecordsAsync().then(setRecords)
+    getAllRecordsAsync().then(data => {
+      setRecords(data)
+      setLoading(false)
+    }).catch(() => setLoading(false))
   }, [])
 
   // 监听 localStorage 变化，实时更新
@@ -68,6 +83,40 @@ export default function HomePage() {
   )
 
   const isEmpty = records.length === 0
+
+  // 关闭首次引导
+  const dismissGuide = useCallback(() => {
+    setShowGuide(false)
+    localStorage.removeItem('mood_calendar_show_guide')
+  }, [])
+
+  // 加密模式加载中：显示骨架屏，避免闪空
+  if (loading) {
+    return (
+      <div className="max-w-4xl mx-auto px-4 py-6 pb-24">
+        <div className="flex items-center justify-between mb-6">
+          <div>
+            <div className="h-6 w-24 bg-white/10 rounded animate-pulse mb-2" />
+            <div className="h-3 w-40 bg-white/5 rounded animate-pulse" />
+          </div>
+          <div className="w-8 h-8 bg-white/10 rounded-xl animate-pulse" />
+        </div>
+        <div className="card p-4 mb-4">
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-white/10 rounded-xl animate-pulse" />
+            <div className="flex-1">
+              <div className="h-4 w-32 bg-white/10 rounded animate-pulse mb-2" />
+              <div className="h-3 w-24 bg-white/5 rounded animate-pulse" />
+            </div>
+          </div>
+        </div>
+        <div className="card p-4">
+          <div className="h-4 w-24 bg-white/10 rounded animate-pulse mb-3" />
+          <div className="h-40 bg-white/5 rounded-xl animate-pulse" />
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-6 pb-24">
@@ -204,6 +253,28 @@ export default function HomePage() {
 
       {/* 高频关键词云 */}
       {!isEmpty && records.length >= 5 && <KeywordCloud records={records} maxWords={20} />}
+
+      {/* 首次引导：指向热力图 */}
+      {showGuide && !isEmpty && (
+        <div className="card p-4 mb-4 border border-pink-500/30 bg-pink-500/5 animate-fade-in-up relative">
+          <button
+            onClick={dismissGuide}
+            className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center theme-text-tertiary hover:theme-text text-xs transition-colors"
+            aria-label="关闭引导"
+          >
+            ✕
+          </button>
+          <div className="flex items-start gap-3">
+            <span className="text-2xl mt-0.5">👇</span>
+            <div>
+              <p className="text-sm font-medium theme-text mb-1">你的专属情绪日历在这里！</p>
+              <p className="text-xs theme-text-tertiary">
+                下方热力图展示了你每一天的情绪记录。点击任意日期可以查看或修改记录。试试切换年/月视图看看不同维度的情绪分布。
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* 热力图/月视图 */}
       <div className="card p-4">

@@ -47,6 +47,7 @@ export default function Onboarding({ onComplete }) {
 
   const handleComplete = (withDemo = false) => {
     localStorage.setItem('mood_calendar_onboarded', 'true')
+    localStorage.setItem('mood_calendar_show_guide', 'true')
 
     if (withDemo) {
       setImporting(true)
