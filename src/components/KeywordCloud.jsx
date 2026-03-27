@@ -33,7 +33,7 @@ function extractKeywordsFromText(text) {
   if (!text) return []
   const words = []
 
-  // 提取 2-6 字的中文词组（按非中文字符分割）
+  // 按非中文字符分割，提取连续中文/英文片段
   const cleanText = text.replace(/[^\u4e00-\u9fff\uf900-\ufaffa-zA-Z]/g, ' ')
   const segments = cleanText.split(/\s+/).filter(s => s.length >= 2)
 
@@ -43,20 +43,8 @@ function extractKeywordsFromText(text) {
     }
   }
 
-  // 记录长度 ≥ 3 的已提取词组，用于过滤 bigram 片段
-  const longSegments = segments.filter(s => s.length >= 3)
-
-  // 额外提取 bigram（过滤掉助词开头/结尾的无意义组合，以及长词组的片段）
-  const FUNC_WORDS = new Set(['的', '了', '在', '是', '有', '和', '就', '不', '都', '上', '也', '很', '到', '说', '要', '去', '会', '着', '那', '这', '他', '她', '它', '们', '被', '把', '从', '对', '为', '所', '以', '而', '但', '或', '与', '及', '等', '个', '种', '些', '样', '点'])
-  const chars = [...text].filter(c => /[\u4e00-\u9fff]/.test(c))
-  for (let i = 0; i < chars.length - 1; i++) {
-    if (FUNC_WORDS.has(chars[i]) || FUNC_WORDS.has(chars[i + 1])) continue
-    const bigram = chars[i] + chars[i + 1]
-    if (STOP_WORDS.has(bigram)) continue
-    // 如果 bigram 是某个已提取长词组的子串，说明是片段而非独立词，跳过
-    if (longSegments.some(seg => seg.includes(bigram) && seg !== bigram)) continue
-    words.push(bigram)
-  }
+  // 注意：不再提取 bigram，因为 bigram 会跨越标点边界拼出无意义片段
+  // 段落分割已足够提取"小骄傲""感受到了"等有意义词组
 
   return words
 }
