@@ -192,7 +192,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-xl font-bold gradient-text">心迹</h1>
+          <h1 className="text-2xl font-bold gradient-text">心迹 MoodTrace</h1>
           {greeting && <p className="text-xs theme-text-secondary mt-1">{greeting}</p>}
         </div>
         <div className="flex items-center gap-2">
