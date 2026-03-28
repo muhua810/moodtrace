@@ -793,15 +793,16 @@ function AnnualReport({ records, navigate }) {
     const counts = {}
     Object.keys(MOOD_TYPES).forEach(k => counts[k] = 0)
     mr.forEach(r => { if (counts[r.mood] !== undefined) counts[r.mood]++ })
-    // 没有记录的月份返回 null，Recharts 会跳过该月不显示
+    // 没有记录的月份用 0.2 填充，河流图保持连续但极细
     const hasData = mr.length > 0
     return {
       month: name,
-      very_negative: hasData ? counts.very_negative : null,
-      negative: hasData ? counts.negative : null,
-      neutral: hasData ? counts.neutral : null,
-      positive: hasData ? counts.positive : null,
-      very_positive: hasData ? counts.very_positive : null,
+      _empty: !hasData,
+      very_negative: hasData ? counts.very_negative : 0.2,
+      negative: hasData ? counts.negative : 0.2,
+      neutral: hasData ? counts.neutral : 0.2,
+      positive: hasData ? counts.positive : 0.2,
+      very_positive: hasData ? counts.very_positive : 0.2,
     }
   })
 
@@ -983,11 +984,11 @@ function AnnualReport({ records, navigate }) {
               <Tooltip
                 contentStyle={{ background: 'var(--theme-bg)', border: '1px solid var(--theme-border)', borderRadius: 10, fontSize: 11, color: 'var(--theme-text)' }}
                 formatter={(value, name, props) => {
+                  if (props.payload?._empty) return ['无数据', MOOD_TYPES[name]?.label || name]
                   const keys = ['very_positive','positive','neutral','negative','very_negative']
                   const raw = keys.map(k => props.payload?.[k] || 0)
                   const sum = raw.reduce((a,b) => a+b, 0) || 1
                   const pcts = raw.map(r => Math.round(r / sum * 100))
-                  // 补余数到最大项，确保总和=100
                   const diff = 100 - pcts.reduce((a,b) => a+b, 0)
                   const maxIdx = pcts.indexOf(Math.max(...pcts))
                   pcts[maxIdx] += diff
