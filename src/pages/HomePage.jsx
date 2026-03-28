@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, CalendarDays, LayoutGrid, Settings, Database, Sparkles, Zap, TrendingUp } from 'lucide-react'
+import { t } from '../i18n'
 import HeatmapCalendar from '../components/HeatmapCalendar'
 import MonthCalendar from '../components/MonthCalendar'
 import MiniTrend from '../components/MiniTrend'
@@ -56,13 +57,13 @@ export default function HomePage() {
   // 根据时间设置问候语
   useEffect(() => {
     const hour = new Date().getHours()
-    if (hour < 6) setGreeting('夜深了，早点休息 🌙')
-    else if (hour < 9) setGreeting('早安，新的一天 ☀️')
-    else if (hour < 12) setGreeting('上午好 🌤️')
-    else if (hour < 14) setGreeting('中午好 🌞')
-    else if (hour < 18) setGreeting('下午好 ☁️')
-    else if (hour < 22) setGreeting('晚上好 🌆')
-    else setGreeting('夜深了 🌙')
+    if (hour < 6) setGreeting(t('greeting.lateNight'))
+    else if (hour < 9) setGreeting(t('greeting.morning'))
+    else if (hour < 12) setGreeting(t('greeting.lateMorning'))
+    else if (hour < 14) setGreeting(t('greeting.noon'))
+    else if (hour < 18) setGreeting(t('greeting.afternoon'))
+    else if (hour < 22) setGreeting(t('greeting.evening'))
+    else setGreeting(t('greeting.lateEvening'))
   }, [])
   // 内置群体情绪演示数据（API 不可达时的 fallback）— 缓存结果，刷新不随机变化
   const getDemoFallback = useCallback(() => {
@@ -192,7 +193,7 @@ export default function HomePage() {
       {/* Header */}
       <header className="flex items-center justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold gradient-text">心迹 MoodTrace</h1>
+          <h1 className="text-2xl font-bold gradient-text">{t('home.title')}</h1>
           {greeting && <p className="text-xs theme-text-secondary mt-1">{greeting}</p>}
         </div>
         <div className="flex items-center gap-2">
@@ -202,7 +203,7 @@ export default function HomePage() {
           <button
             onClick={() => navigate('/profile')}
             className="p-2 rounded-xl hover:bg-white/10 theme-text-tertiary hover:theme-text transition-colors"
-            aria-label="设置"
+            aria-label={t('settings.title')}
           >
             <Settings size={18} />
           </button>
@@ -222,10 +223,10 @@ export default function HomePage() {
           </div>
           <div className="flex-1">
             <p className="text-sm font-medium theme-text">
-              {todayRecord ? '今日已记录' : '今天感觉怎么样？'}
+              {todayRecord ? t('home.recordedToday') : t('home.howFeeling')}
             </p>
             <p className="text-xs theme-text-tertiary mt-0.5">
-              {todayRecord ? todayRecord.moodLabel : '一句话记录你的心情'}
+              {todayRecord ? todayRecord.moodLabel : t('home.oneLineHint')}
             </p>
           </div>
           <button
@@ -234,7 +235,7 @@ export default function HomePage() {
             style={{ background: todayRecord ? MOOD_TYPES[todayRecord.mood]?.gradient : 'linear-gradient(135deg, #a78bfa, #f472b6)' }}
           >
             <Plus size={16} />
-            {todayRecord ? '修改' : '记录'}
+            {todayRecord ? t('home.edit') : t('home.record')}
           </button>
         </div>
       </div>
@@ -244,7 +245,7 @@ export default function HomePage() {
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
             <span className="text-base">🌐</span>
-            <h2 className="text-sm font-semibold theme-text">今日群体情绪</h2>
+            <h2 className="text-sm font-semibold theme-text">{t('home.communityMood')}</h2>
             {communityStats?.isDemo && (
               <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400">模拟</span>
             )}
@@ -276,11 +277,11 @@ export default function HomePage() {
             {/* 颜色图例 */}
             <div className="flex items-center justify-center gap-2.5 mb-2">
               {[
-                { key: 'very_negative', label: '非常低落', color: '#ef4444' },
-                { key: 'negative', label: '有点难过', color: '#f97316' },
-                { key: 'neutral', label: '一般般', color: '#eab308' },
-                { key: 'positive', label: '心情不错', color: '#22c55e' },
-                { key: 'very_positive', label: '超级开心', color: '#6366f1' },
+                { key: 'very_negative', label: t('mood.very_negative'), color: '#ef4444' },
+                { key: 'negative', label: t('mood.negative'), color: '#f97316' },
+                { key: 'neutral', label: t('mood.neutral'), color: '#eab308' },
+                { key: 'positive', label: t('mood.positive'), color: '#22c55e' },
+                { key: 'very_positive', label: t('mood.very_positive'), color: '#6366f1' },
               ].map(item => (
                 <div key={item.key} className="flex items-center gap-1">
                   <div className="w-2 h-2 rounded-full" style={{ backgroundColor: item.color }} />
@@ -294,7 +295,7 @@ export default function HomePage() {
                 onClick={() => navigate('/stats?tab=community')}
                 className="text-purple-400 hover:text-purple-300 transition-colors"
               >
-                查看详情 →
+                {t('home.viewDetails')} →
               </button>
             </div>
           </>
@@ -312,7 +313,7 @@ export default function HomePage() {
           <div className="flex items-start gap-3">
             <span className="text-xl mt-0.5">✨</span>
             <div className="flex-1">
-              <p className="text-sm font-medium theme-text">体验完整年度报告</p>
+              <p className="text-sm font-medium theme-text">{t('home.fullReport')}</p>
               <p className="text-xs theme-text-tertiary mt-1">
                 当前有 {records.length} 条记录。导入一整年示例数据（365天），可完整体验年度报告、趋势分析等所有功能。
               </p>
@@ -322,7 +323,7 @@ export default function HomePage() {
                 className="mt-2 flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 text-xs font-medium transition-all active:scale-95 disabled:opacity-50"
               >
                 <Database size={14} />
-                {importingDemo ? '导入中...' : '导入 365 天示例数据'}
+                {importingDemo ? '...' : t('home.importDemo')}
               </button>
             </div>
           </div>
@@ -348,9 +349,9 @@ export default function HomePage() {
 
             <div className="relative z-10">
               <div className="text-5xl mb-4 animate-bounce-soft">✨</div>
-              <h2 className="text-xl font-bold gradient-text mb-2">欢迎使用心迹</h2>
+              <h2 className="text-xl font-bold gradient-text mb-2">{t('home.welcome')}</h2>
               <p className="text-sm theme-text-secondary mb-1">
-                AI 驱动的情绪追踪与心理健康可视化
+                {t('home.subtitle')}
               </p>
               <p className="text-xs theme-text-tertiary mb-6">
                 每天一句话记录心情，AI 自动分析，发现情绪规律
@@ -384,7 +385,7 @@ export default function HomePage() {
                 }}
               >
                 <Sparkles size={20} />
-                {importingDemo ? '正在导入...' : '一键体验完整功能'}
+                {importingDemo ? '...' : t('home.oneClickDemo')}
               </button>
               <p className="text-[10px] theme-text-muted mb-4">
                 导入 365 天模拟数据 · 热力图 · 统计 · 年度报告全部解锁
@@ -403,7 +404,7 @@ export default function HomePage() {
                 className="w-full max-w-xs mx-auto flex items-center justify-center gap-2 py-3 rounded-xl bg-white/10 hover:bg-white/15 theme-text text-sm font-medium transition-all active:scale-[0.98]"
               >
                 <Plus size={16} />
-                从记录今天的心情开始
+                {t('home.startRecording')}
               </button>
             </div>
           </div>
@@ -414,13 +415,13 @@ export default function HomePage() {
       {recentRecords.length > 0 && (
         <div className="card p-4 mb-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-sm font-semibold theme-text">最近记录</h2>
+            <h2 className="text-sm font-semibold theme-text">{t('home.recentRecords')}</h2>
             {records.length > 3 && (
               <button
                 onClick={() => navigate('/stats')}
                 className="text-xs text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded px-1 py-0.5"
               >
-                查看全部 ({records.length})
+                {t('home.viewAll')} ({records.length})
               </button>
             )}
           </div>
@@ -473,15 +474,15 @@ export default function HomePage() {
       {/* 热力图/月视图 */}
       <div className="card p-4">
         <div className="flex items-center justify-between mb-3">
-          <h2 className="text-sm font-semibold theme-text">情绪热力图</h2>
+          <h2 className="text-sm font-semibold theme-text">{t('home.heatmap')}</h2>
           <div className="flex gap-1 bg-white/5 rounded-lg p-0.5">
             <button
               onClick={() => setViewMode('heatmap')}
               className={`p-1.5 rounded-md transition-all ${
                 viewMode === 'heatmap' ? 'bg-pink-500/20 text-pink-400' : 'theme-text-tertiary hover:theme-text-secondary'
               }`}
-              aria-label="年视图"
-              title="年视图"
+              aria-label={t('home.yearView')}
+              title={t('home.yearView')}
             >
               <CalendarDays size={14} />
             </button>
@@ -490,8 +491,8 @@ export default function HomePage() {
               className={`p-1.5 rounded-md transition-all ${
                 viewMode === 'month' ? 'bg-pink-500/20 text-pink-400' : 'theme-text-tertiary hover:theme-text-secondary'
               }`}
-              aria-label="月视图"
-              title="月视图"
+              aria-label={t('home.monthView')}
+              title={t('home.monthView')}
             >
               <LayoutGrid size={14} />
             </button>

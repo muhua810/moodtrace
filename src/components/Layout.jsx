@@ -2,12 +2,13 @@ import { useState, useEffect, useCallback } from 'react'
 import { Outlet, NavLink, useLocation, useNavigate } from 'react-router-dom'
 import { Home, PenLine, BarChart3, User, X } from 'lucide-react'
 import { setPageReminderCallback } from '../services/reminder'
+import { t } from '../i18n'
 
 const navItems = [
-  { path: '/', icon: Home, label: '首页', ariaLabel: '跳转到首页' },
-  { path: '/record', icon: PenLine, label: '记录', ariaLabel: '跳转到记录页' },
-  { path: '/stats', icon: BarChart3, label: '统计', ariaLabel: '跳转到统计页' },
-  { path: '/profile', icon: User, label: '我的', ariaLabel: '跳转到设置页' },
+  { path: '/', icon: Home, label: t('nav.home'), ariaLabel: t('nav.home') },
+  { path: '/record', icon: PenLine, label: t('nav.record'), ariaLabel: t('nav.record') },
+  { path: '/stats', icon: BarChart3, label: t('nav.stats'), ariaLabel: t('nav.stats') },
+  { path: '/profile', icon: User, label: t('nav.profile'), ariaLabel: t('nav.profile') },
 ]
 
 export default function Layout() {

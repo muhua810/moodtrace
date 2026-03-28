@@ -1,12 +1,13 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ArrowLeft, Key, Database, Trash2, Info, Heart, Shield, ExternalLink, Upload, Bell, Sun, Moon, Lock, X, Cloud, CloudUpload, CloudDownload, Copy } from 'lucide-react'
+import { ArrowLeft, Key, Database, Trash2, Info, Heart, Shield, ExternalLink, Upload, Bell, Sun, Moon, Lock, X, Cloud, CloudUpload, CloudDownload, Copy, Globe } from 'lucide-react'
 import { getDisplayDeviceId, uploadBackup, downloadBackup } from '../services/backupService'
 import { exportData, importData, clearAllData, isEncryptionEnabled, enableEncryption, setEncryptionEnabled, saveRecordAsync } from '../services/storage'
 import { getReminderSettings, saveReminderSettings, requestNotificationPermission, startReminderCheck, stopReminderCheck, isNotificationSupported } from '../services/reminder'
 import { useTheme } from '../contexts/ThemeContext'
 import { isAnonymousSubmitEnabled, setAnonymousSubmitEnabled, getApiBase, setApiBase } from '../services/apiService'
 import { secureKeyGet, secureKeySet } from '../utils/crypto'
+import { getCurrentLang, setCurrentLang, getSupportedLangs } from '../i18n'
 
 // ── 自定义确认弹窗 ──
 function ConfirmModal({ title, message, confirmText = '确定', cancelText = '取消', danger = false, onConfirm, onCancel }) {
@@ -287,6 +288,29 @@ export default function ProfilePage() {
               )}
             </span>
           </button>
+        </div>
+      </section>
+
+      {/* 语言切换 */}
+      <section className="glass rounded-2xl p-4 mb-4" aria-label="语言设置">
+        <div className="flex items-center gap-2 mb-3">
+          <Globe size={16} className="text-blue-400" aria-hidden="true" />
+          <h2 className="text-sm font-medium theme-text">语言 / Language</h2>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {getSupportedLangs().map(lang => (
+            <button
+              key={lang.code}
+              onClick={() => { setCurrentLang(lang.code); window.location.reload() }}
+              className={`py-2 px-3 rounded-xl text-sm font-medium transition-all ${
+                getCurrentLang() === lang.code 
+                  ? 'bg-blue-500/20 text-blue-400 border border-blue-500/30' 
+                  : 'bg-white/5 theme-text-secondary hover:bg-white/10 border border-transparent'
+              }`}
+            >
+              {lang.label}
+            </button>
+          ))}
         </div>
       </section>
 
@@ -653,7 +677,7 @@ export default function ProfilePage() {
           <h2 className="text-sm font-medium theme-text">关于</h2>
         </div>
         <div className="text-xs theme-text-tertiary space-y-1">
-          <p>心迹 v2.1.0</p>
+          <p>心迹 v2.1.1</p>
           <p>中国大学生计算机设计大赛参赛作品</p>
           <p>AI 驱动的情绪追踪与可视化应用</p>
           <p className="mt-2 theme-text-muted">
