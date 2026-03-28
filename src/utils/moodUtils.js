@@ -95,7 +95,13 @@ export function getMoodBgClass(moodKey) {
 // 获取情绪的多语言标签
 export function getMoodLabel(moodKey) {
   const i18nKey = MOOD_I18N_KEYS[moodKey]
-  return i18nKey ? t(i18nKey) : (MOOD_TYPES[moodKey]?.label || moodKey)
+  if (i18nKey) {
+    const translated = t(i18nKey)
+    // 如果翻译结果和 key 不同（说明找到了翻译），返回翻译结果
+    // 否则 fallback 到 key 本身，而不是硬编码中文
+    if (translated !== i18nKey) return translated
+  }
+  return moodKey
 }
 
 // 获取所有情绪类型列表
@@ -130,10 +136,13 @@ export function formatRelativeDate(dateStr) {
   today.setHours(0, 0, 0, 0)
   const date = new Date(dateStr + 'T00:00:00')
   const diff = Math.round((today - date) / MS_PER_DAY)
-  if (diff === 0) return '今天'
-  if (diff === 1) return '昨天'
-  if (diff === 2) return '前天'
-  if (diff > 0 && diff <= 6) return `${diff}天前`
+  if (diff === 0) return t('record.today')
+  if (diff === 1) return t('record.yesterday')
+  if (diff === 2) return t('record.beforeYesterday')
+  if (diff > 0 && diff <= 6) {
+    const lang = localStorage.getItem('moodtrace_lang') || 'zh'
+    return lang === 'zh' ? `${diff}天前` : `${diff} days ago`
+  }
   return dateStr
 }
 
