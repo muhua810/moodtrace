@@ -323,7 +323,7 @@ export default function RecordPage() {
               onClick={handleAnalyze}
               disabled={!text.trim() || loading}
               className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-pink-500 hover:bg-pink-400 disabled:bg-slate-700 disabled:text-slate-500 text-white text-sm font-medium transition-all active:scale-95 focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-              aria-label="AI 分析情绪"
+              aria-label={t('aria.analyzeMood')}
             >
               {loading ? (
                 <Loader2 size={16} className="animate-spin" aria-hidden="true" />
@@ -358,7 +358,7 @@ export default function RecordPage() {
           <div
             className={`rounded-2xl p-5 mb-4 border ${getMoodBgClass(result.mood)}`}
             role="status"
-            aria-label={`分析结果：${MOOD_TYPES[result.mood]?.label}，情绪强度 ${result.intensity}`}
+            aria-label={`${MOOD_TYPES[result.mood]?.label}，${t('record.intensity')} ${result.intensity}`}
           >
             <div className="flex items-center gap-4 mb-4">
               <div
@@ -378,7 +378,7 @@ export default function RecordPage() {
 
             {/* 关键词 */}
             {result.keywords?.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-3" aria-label="关键词">
+              <div className="flex flex-wrap gap-2 mb-3" aria-label={t('record.keywords')}>
                 {result.keywords.map((kw, i) => (
                   <span key={i} className="px-2.5 py-1 rounded-lg bg-white/10 text-xs theme-text-secondary">
                     {kw}
@@ -468,7 +468,7 @@ function MoodButton({ mood, onSelect }) {
     <button
       onClick={handleClick}
       className={`flex items-center gap-2 px-4 py-2.5 rounded-xl border transition-all active:scale-95 ${mood.bgClass} hover:brightness-110 focus:outline-none focus:ring-2 focus:ring-pink-400/50`}
-      aria-label={`选择情绪：${mood.label}`}
+      aria-label={t('aria.selectMood').replace('{label}', mood.label)}
     >
       <span className={`text-lg ${bouncing ? 'animate-emoji-bounce' : ''}`} aria-hidden="true">
         {mood.emoji}
