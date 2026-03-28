@@ -2,6 +2,7 @@ import { useMemo, useState, useCallback, useRef, useEffect } from 'react'
 import { format, startOfYear, endOfYear, eachDayOfInterval, addDays, startOfWeek, getMonth } from 'date-fns'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getMoodColor } from '../utils/moodUtils'
+import { t } from '../i18n'
 
 // 响应式媒体查询 hook
 function useMediaQuery(query) {
@@ -18,8 +19,8 @@ function useMediaQuery(query) {
   return matches
 }
 
-const MONTH_LABELS = ['一月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '十一', '十二']
-const DAY_LABELS = ['', '一', '', '三', '', '五', '']
+const getMonthLabels = () => t('heatmap.months').split(',')
+const getDayLabels = () => t('heatmap.weekdays').split(',')
 
 const CELL_SIZE = 13
 const CELL_GAP = 3
@@ -77,8 +78,8 @@ function HeatmapCell({
   cellX, cellY, svgWidth, cellSize: cs, totalSize: ts, hitSize: hs, hitOffset: ho,
   onHover, onBlur, onClick,
 }) {
-  const moodLabel = record?.moodLabel || '未记录'
-  const displayDate = format(day, 'M月d日')
+  const moodLabel = record?.moodLabel || t('heatmap.unrecorded')
+  const displayDate = format(day, 'M/d')
   const isActive = isHovered || isSelected
 
   return (
@@ -270,16 +271,16 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
             <button
               onClick={() => setYear(y => y - 1)}
               className="p-1 rounded-lg hover:bg-white/10 theme-text-secondary hover:theme-text transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 active:scale-90"
-              aria-label={`${year - 1}年`}
+              aria-label={`${year - 1}`}
             >
               <ChevronLeft size={16} />
             </button>
-            <span className="text-sm font-medium theme-text">{year}年</span>
+            <span className="text-sm font-medium theme-text">{year}/span>
             <button
               onClick={() => setYear(y => Math.min(y + 1, currentYear))}
               disabled={year >= currentYear}
               className="p-1 rounded-lg hover:bg-white/10 theme-text-secondary hover:theme-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-pink-400/50 active:scale-90"
-              aria-label={`${year + 1}年`}
+              aria-label={`${year + 1}`}
             >
               <ChevronRight size={16} />
             </button>
@@ -296,7 +297,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
                   fill="var(--theme-text-tertiary)"
                   fontSize={10}
                 >
-                  {MONTH_LABELS[month]}
+                  {getMonthLabels()[month]}
                 </text>
               ))}
             </svg>
@@ -306,7 +307,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
           <div className="flex">
             {/* 星期标签 */}
             <div className="flex flex-col mr-1" style={{ gap: cellGap }} aria-hidden="true">
-              {DAY_LABELS.map((label, i) => (
+              {getDayLabels().map((label, i) => (
                 <div
                   key={i}
                   className="flex items-center justify-end theme-text-tertiary"
@@ -364,8 +365,8 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
           </div>
 
           {/* 图例 */}
-          <div className="flex items-center gap-3 mt-3 ml-8 text-xs theme-text-secondary flex-wrap" aria-label="图例">
-            <span className="theme-text-tertiary">情绪：</span>
+          <div className="flex items-center gap-3 mt-3 ml-8 text-xs theme-text-secondary flex-wrap" aria-label={t('heatmap.legend')}>
+            <span className="theme-text-tertiary">{t('heatmap.legend')}</span>
             {[
               { color: '#ef4444', label: '非常低落' },
               { color: '#f97316', label: '有点难过' },
@@ -395,7 +396,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
         <button
           onClick={() => scrollBy(-1)}
           className="absolute left-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-lg flex items-center justify-center theme-text-secondary hover:theme-text hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 active:scale-90"
-          aria-label="向左滚动"
+          aria-label={t('heatmap.scrollLeft')}
           tabIndex={-1}
         >
           <ChevronLeft size={16} />
@@ -405,7 +406,7 @@ export default function HeatmapCalendar({ records = [], year: initialYear, onDay
         <button
           onClick={() => scrollBy(1)}
           className="absolute right-1 top-1/2 -translate-y-1/2 z-20 w-8 h-8 rounded-full bg-[var(--theme-card)] border border-[var(--theme-border)] shadow-lg flex items-center justify-center theme-text-secondary hover:theme-text hover:bg-white/10 transition-all opacity-0 group-hover:opacity-100 focus:opacity-100 active:scale-90"
-          aria-label="向右滚动"
+          aria-label={t('heatmap.scrollRight')}
           tabIndex={-1}
         >
           <ChevronRight size={16} />

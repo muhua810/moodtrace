@@ -28,15 +28,13 @@ export default function Layout() {
 
   return (
     <div className="min-h-screen flex flex-col">
-      {/* Skip to main content link for accessibility */}
       <a
         href="#main-content"
         className="sr-only focus:not-sr-only focus:absolute focus:top-2 focus:left-2 focus:z-[100] focus:px-4 focus:py-2 focus:bg-pink-500 focus:text-white focus:rounded-lg"
       >
-        跳转到主要内容
+        {t('layout.skipToContent')}
       </a>
 
-      {/* Toast 提醒 */}
       {toast && (
         <div
           className="fixed top-4 left-1/2 -translate-x-1/2 z-[60] w-[90%] max-w-md animate-slide-down"
@@ -46,19 +44,19 @@ export default function Layout() {
             <div className="flex items-start gap-3">
               <span className="text-2xl">📝</span>
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-pink-300 mb-1">每日提醒</p>
+                <p className="text-sm font-medium text-pink-300 mb-1">{t('layout.dailyReminder')}</p>
                 <p className="text-sm theme-text-secondary">{toast}</p>
                 <button
                   onClick={() => { setToast(null); navigate('/record') }}
                   className="mt-2 text-xs text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded"
                 >
-                  去记录 →
+                  {t('layout.goRecord')}
                 </button>
               </div>
               <button
                 onClick={() => setToast(null)}
                 className="p-1 rounded-lg hover:bg-white/10 transition-colors theme-text-tertiary focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-                aria-label="关闭提醒"
+                aria-label={t('layout.closeReminder')}
               >
                 <X size={16} />
               </button>
@@ -67,16 +65,14 @@ export default function Layout() {
         </div>
       )}
 
-      {/* Main Content */}
       <main id="main-content" className="flex-1 pb-20 overflow-y-auto" role="main">
         <Outlet />
       </main>
 
-      {/* Bottom Navigation */}
       <nav
         className="fixed bottom-0 left-0 right-0 glass border-t z-50"
         role="navigation"
-        aria-label="主导航"
+        aria-label={t('layout.mainNav')}
       >
         <div className="flex justify-around items-center h-14 sm:h-16 max-w-lg mx-auto px-2">
           {navItems.map(({ path, icon: Icon, label, ariaLabel }) => {

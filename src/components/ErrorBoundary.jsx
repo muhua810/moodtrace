@@ -1,5 +1,6 @@
 import { Component } from 'react'
 import { AlertTriangle, RefreshCw } from 'lucide-react'
+import { t } from '../i18n'
 
 export default class ErrorBoundary extends Component {
   constructor(props) {
@@ -27,9 +28,9 @@ export default class ErrorBoundary extends Component {
             <div className="w-16 h-16 rounded-full bg-red-500/20 flex items-center justify-center mx-auto mb-4">
               <AlertTriangle size={32} className="text-red-400" />
             </div>
-            <h2 className="text-lg font-semibold theme-text mb-2">出现了一点小问题</h2>
+            <h2 className="text-lg font-semibold theme-text mb-2">{t('error.title')}</h2>
             <p className="text-sm theme-text-secondary mb-6">
-              应用遇到了意外错误，但这不影响你的数据安全。请尝试刷新页面。
+              {t('error.desc')}
             </p>
             <div className="space-y-2">
               <button
@@ -37,13 +38,13 @@ export default class ErrorBoundary extends Component {
                 className="w-full flex items-center justify-center gap-2 py-3 rounded-xl bg-pink-500 hover:bg-pink-400 text-white font-medium transition-all"
               >
                 <RefreshCw size={16} />
-                重试
+                {t('error.retry')}
               </button>
               <button
                 onClick={() => window.location.reload()}
                 className="w-full py-3 rounded-xl glass theme-text-secondary hover:theme-text transition-colors text-sm"
               >
-                刷新页面
+                {t('error.refresh')}
               </button>
             </div>
           </div>

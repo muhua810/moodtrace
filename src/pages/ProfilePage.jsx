@@ -7,7 +7,7 @@ import { getReminderSettings, saveReminderSettings, requestNotificationPermissio
 import { useTheme } from '../contexts/ThemeContext'
 import { isAnonymousSubmitEnabled, setAnonymousSubmitEnabled, getApiBase, setApiBase } from '../services/apiService'
 import { secureKeyGet, secureKeySet } from '../utils/crypto'
-import { getCurrentLang, setCurrentLang, getSupportedLangs } from '../i18n'
+import { getCurrentLang, setCurrentLang, getSupportedLangs, t } from '../i18n'
 
 // ── 自定义确认弹窗 ──
 function ConfirmModal({ title, message, confirmText = '确定', cancelText = '取消', danger = false, onConfirm, onCancel }) {
@@ -108,14 +108,14 @@ export default function ProfilePage() {
 
   const handleClearData = () => {
     setConfirmConfig({
-      title: '清除所有数据',
-      message: '确定要清除所有情绪记录吗？此操作不可恢复。',
-      confirmText: '确认清除',
+      title: t('data.clearTitle'),
+      message: t('data.clearMessage'),
+      confirmText: t('data.clearConfirm'),
       danger: true,
       onConfirm: () => {
         clearAllData()
         setConfirmConfig(null)
-        showToast('已清除所有记录')
+        showToast(t('data.cleared'))
         setTimeout(() => navigate('/'), 1000)
       },
       onCancel: () => setConfirmConfig(null),
@@ -125,9 +125,9 @@ export default function ProfilePage() {
   const handleExportData = async () => {
     try {
       await exportData()
-      showToast('数据导出成功')
+      showToast(t('data.exportSuccess'))
     } catch (e) {
-      showToast('导出失败：' + e.message, 'error')
+      showToast(t('data.exportFail') + e.message, 'error')
     }
   }
 
@@ -172,7 +172,7 @@ export default function ProfilePage() {
       setTimeout(() => setImportResult(null), 5000)
     }
     reader.onerror = () => {
-      setImportResult({ success: false, error: '读取文件失败' })
+      setImportResult({ success: false, error: t('data.readFail') })
       setTimeout(() => setImportResult(null), 3000)
     }
     reader.readAsText(file)
@@ -186,17 +186,17 @@ export default function ProfilePage() {
     const result = await uploadBackup()
     setBackupLoading(false)
     if (result.success) {
-      showToast(`备份成功！已上传 ${result.count} 条记录`)
+      showToast(t('data.backupSuccess').replace('{count}', result.count))
     } else {
-      showToast(result.error || '备份失败', 'error')
+      showToast(result.error || t('data.backupFail'), 'error')
     }
   }
 
   const handleDownloadBackup = () => {
     setConfirmConfig({
-      title: '从云端恢复',
-      message: '恢复将与本地数据合并（已有日期不覆盖）。确定继续？',
-      confirmText: '确认恢复',
+      title: t('data.restoreTitle'),
+      message: t('data.restoreMessage'),
+      confirmText: t('data.restoreConfirm'),
       danger: false,
       onConfirm: async () => {
         setConfirmConfig(null)
@@ -211,10 +211,10 @@ export default function ProfilePage() {
               imported++
             }
           }
-          showToast(`恢复成功！已同步 ${imported} 条记录`)
+          showToast(t('data.restoreSuccess').replace('{imported}', imported))
           window.dispatchEvent(new Event('mood-record-updated'))
         } else {
-          showToast(result.error || '恢复失败', 'error')
+          showToast(result.error || t('data.restoreFail'), 'error')
         }
       },
       onCancel: () => setConfirmConfig(null),
@@ -253,7 +253,7 @@ export default function ProfilePage() {
         >
           <ArrowLeft size={20} aria-hidden="true" />
         </button>
-        <h1 className="text-lg font-semibold theme-text">设置</h1>
+        <h1 className="text-lg font-semibold theme-text">{t('settings.title')}</h1>
       </div>
 
       {/* 主题切换 */}
@@ -265,7 +265,7 @@ export default function ProfilePage() {
             ) : (
               <Sun size={16} className="text-yellow-500" aria-hidden="true" />
             )}
-            <span className="text-sm font-medium theme-text">外观模式</span>
+            <span className="text-sm font-medium theme-text">{t('settings.appearance')}</span>
           </div>
           <button
             onClick={toggleTheme}
@@ -295,7 +295,7 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="语言设置">
         <div className="flex items-center gap-2 mb-3">
           <Globe size={16} className="text-blue-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">语言 / Language</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.language')}</h2>
         </div>
         <div className="grid grid-cols-3 gap-2">
           {getSupportedLangs().map(lang => (
@@ -318,21 +318,18 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="AI 分析设置">
         <div className="flex items-center gap-2 mb-4">
           <Key size={16} className="text-pink-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">AI 分析设置</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.aiSettings')}</h2>
         </div>
         <p className="text-xs theme-text-tertiary mb-4">
-          配置 OpenAI 兼容 API 后，可以使用 AI 进行更精准的情绪分析。
-          不配置也可以使用本地关键词分析。
+          {t('settings.aiSettingsDesc')}
         </p>
         <div className="mb-4 p-3 rounded-xl bg-yellow-500/10 border border-yellow-500/20 text-yellow-300/90 text-xs">
-          🔒 安全提示：API Key 仅存储在本地浏览器中，不会上传至任何服务器。
-          为安全起见，建议使用有限额的子密钥，避免使用账户主密钥。
-          清除浏览器数据将同时清除 Key。
+          {t('settings.aiSecurityHint')}
         </div>
 
         <div className="space-y-3">
           <div>
-            <label htmlFor="api-key" className="text-xs theme-text-secondary block mb-1">API Key</label>
+            <label htmlFor="api-key" className="text-xs theme-text-secondary block mb-1">{t('settings.apiKey')}</label>
             <div className="flex gap-2">
               <input
                 id="api-key"
@@ -354,7 +351,7 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label htmlFor="api-url" className="text-xs theme-text-secondary block mb-1">API URL（可选）</label>
+            <label htmlFor="api-url" className="text-xs theme-text-secondary block mb-1">{t('settings.apiUrl')}</label>
             <input
               id="api-url"
               type="text"
@@ -366,7 +363,7 @@ export default function ProfilePage() {
           </div>
 
           <div>
-            <label htmlFor="ai-model" className="text-xs theme-text-secondary block mb-1">模型名称（可选）</label>
+            <label htmlFor="ai-model" className="text-xs theme-text-secondary block mb-1">{t('settings.modelName')}</label>
             <input
               id="ai-model"
               type="text"
@@ -390,7 +387,7 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="数据管理">
         <div className="flex items-center gap-2 mb-4">
           <Database size={16} className="text-green-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">数据管理</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.dataManagement')}</h2>
         </div>
 
         {importResult && (
@@ -402,8 +399,7 @@ export default function ProfilePage() {
                 : 'bg-red-500/10 border border-red-500/20 text-red-300'
             }`}
           >
-            {importResult.success
-              ? `导入成功！新增 ${importResult.imported} 条记录${importResult.skipped > 0 ? `，跳过 ${importResult.skipped} 条重复记录` : ''}`
+            {importResult.success ? (importResult.skipped > 0 ? t('data.importSuccessSkipped').replace('{imported}', importResult.imported).replace('{skipped}', importResult.skipped) : t('data.importSuccess').replace('{imported}', importResult.imported)) : t('data.importFail') + importResult.error}
               : `导入失败：${importResult.error}`}
           </div>
         )}
@@ -413,7 +409,7 @@ export default function ProfilePage() {
             onClick={handleExportData}
             className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50"
           >
-            <span className="text-sm theme-text">导出数据</span>
+            <span className="text-sm theme-text">{t('data.export')}</span>
             <ExternalLink size={14} className="theme-text-tertiary" aria-hidden="true" />
           </button>
 
@@ -421,7 +417,7 @@ export default function ProfilePage() {
             onClick={handleImportClick}
             className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50"
           >
-            <span className="text-sm theme-text">导入数据</span>
+            <span className="text-sm theme-text">{t('data.import')}</span>
             <Upload size={14} className="theme-text-tertiary" aria-hidden="true" />
           </button>
 
@@ -438,7 +434,7 @@ export default function ProfilePage() {
             onClick={handleClearData}
             className="w-full flex items-center justify-between p-3 rounded-xl hover:bg-red-500/10 transition-colors text-red-400 focus:outline-none focus:ring-2 focus:ring-red-400/50"
           >
-            <span className="text-sm">清除所有数据</span>
+            <span className="text-sm">{t('data.clearAll')}</span>
             <Trash2 size={14} aria-hidden="true" />
           </button>
         </div>
@@ -448,16 +444,16 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="云端备份">
         <div className="flex items-center gap-2 mb-4">
           <Cloud size={16} className="text-sky-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">云端备份</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.cloudBackup')}</h2>
         </div>
         <p className="text-xs theme-text-tertiary mb-3">
-          无需注册，一键备份到云端。换设备时输入设备 ID 即可恢复数据。
+          {t('settings.cloudBackupDesc')}
         </p>
 
         {/* 设备 ID */}
         <div className="mb-3 p-3 rounded-xl bg-white/5">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-xs theme-text-tertiary">你的设备 ID</span>
+            <span className="text-xs theme-text-tertiary">{t('settings.deviceId')}</span>
             <button
               onClick={handleCopyDeviceId}
               className="flex items-center gap-1 text-xs text-sky-400 hover:text-sky-300 transition-colors"
@@ -467,7 +463,7 @@ export default function ProfilePage() {
             </button>
           </div>
           <p className="text-sm font-mono theme-text tracking-wider">{deviceId}</p>
-          <p className="text-[10px] theme-text-muted mt-1">保存此 ID，换设备时可用于恢复数据</p>
+          <p className="text-[10px] theme-text-muted mt-1">{t('settings.saveDeviceId')}</p>
         </div>
 
         <div className="space-y-2">
@@ -499,16 +495,16 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="每日提醒">
         <div className="flex items-center gap-2 mb-4">
           <Bell size={16} className="text-yellow-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">每日提醒</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.dailyReminder')}</h2>
         </div>
         <p className="text-xs theme-text-tertiary mb-4">
-          设置每日提醒，帮助你养成记录心情的习惯。
+          {t('settings.dailyReminderDesc')}
           {!notifSupported && ' 当前浏览器不支持系统通知，将使用页面内提醒。'}
         </p>
 
         <div className="space-y-3">
           <div className="flex items-center justify-between">
-            <span className="text-sm theme-text">开启提醒</span>
+            <span className="text-sm theme-text">{t('settings.enableReminder')}</span>
             <button
               onClick={handleToggleReminder}
               className={`relative w-11 h-6 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 ${
@@ -528,7 +524,7 @@ export default function ProfilePage() {
 
           {reminder.enabled && (
             <div className="flex items-center gap-2">
-              <label htmlFor="reminder-hour" className="text-sm theme-text-secondary">提醒时间</label>
+              <label htmlFor="reminder-hour" className="text-sm theme-text-secondary">{t('settings.reminderTime')}</label>
               <select
                 id="reminder-hour"
                 value={reminder.hour}
@@ -566,11 +562,10 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="数据加密">
         <div className="flex items-center gap-2 mb-3">
           <Lock size={16} className="text-emerald-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">本地数据加密</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.localEncryption')}</h2>
         </div>
         <p className="text-xs theme-text-tertiary mb-3">
-          启用后，使用 AES-256-GCM 对本地存储的情绪记录进行加密，
-          即使他人打开浏览器开发者工具也无法直接读取明文数据。
+          {t('settings.encryptionDesc')}
         </p>
         <div className="flex items-center justify-between">
           <span className="text-sm theme-text">{encMigrating ? '正在加密...' : '启用加密存储'}</span>
@@ -597,14 +592,13 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="匿名情绪统计">
         <div className="flex items-center gap-2 mb-3">
           <Shield size={16} className="text-cyan-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">匿名情绪统计</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.anonymousStats')}</h2>
         </div>
         <p className="text-xs theme-text-tertiary mb-3">
-          开启后，你的情绪记录（仅含情绪类型和日期，不含任何文字内容）将匿名提交，
-          用于生成群体情绪统计图表，帮助大家了解"今天大家的心情怎么样"。
+          {t('settings.anonymousStatsDesc')}
         </p>
         <div className="flex items-center justify-between">
-          <span className="text-sm theme-text">参与匿名统计</span>
+          <span className="text-sm theme-text">{t('settings.joinAnonymous')}</span>
           <button
             onClick={() => {
               const next = !anonymousSubmit
@@ -630,7 +624,7 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="隐私保护">
         <div className="flex items-center gap-2 mb-3">
           <Shield size={16} className="text-blue-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">隐私保护</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.privacy')}</h2>
         </div>
         <ul className="space-y-2 text-xs theme-text-secondary" role="list">
           <li className="flex items-start gap-2">
@@ -652,19 +646,19 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4 mb-4" aria-label="心理援助资源">
         <div className="flex items-center gap-2 mb-3">
           <Heart size={16} className="text-red-400" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">心理援助资源</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.helpResources')}</h2>
         </div>
         <div className="space-y-2 text-sm">
           <a href="tel:400-161-9995" className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50">
-            <span className="theme-text">全国心理援助热线</span>
+            <span className="theme-text">{t('settings.nationalHotline')}</span>
             <span className="text-pink-400">400-161-9995</span>
           </a>
           <a href="tel:010-82951332" className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50">
-            <span className="theme-text">北京心理危机研究与干预中心</span>
+            <span className="theme-text">{t('settings.beijingHotline')}</span>
             <span className="text-pink-400">010-82951332</span>
           </a>
           <a href="tel:12320-5" className="flex items-center justify-between p-2 rounded-lg hover:bg-white/5 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50">
-            <span className="theme-text">生命热线</span>
+            <span className="theme-text">{t('settings.lifeHotline')}</span>
             <span className="text-pink-400">12320-5</span>
           </a>
         </div>
@@ -674,15 +668,14 @@ export default function ProfilePage() {
       <section className="glass rounded-2xl p-4" aria-label="关于">
         <div className="flex items-center gap-2 mb-3">
           <Info size={16} className="theme-text-tertiary" aria-hidden="true" />
-          <h2 className="text-sm font-medium theme-text">关于</h2>
+          <h2 className="text-sm font-medium theme-text">{t('settings.about')}</h2>
         </div>
         <div className="text-xs theme-text-tertiary space-y-1">
-          <p>心迹 v2.1.1</p>
-          <p>中国大学生计算机设计大赛参赛作品</p>
-          <p>AI 驱动的情绪追踪与可视化应用</p>
+          <p>{t('settings.version')}</p>
+          <p>{t('settings.competition')}</p>
+          <p>{t('settings.appDesc')}</p>
           <p className="mt-2 theme-text-muted">
-            * 本应用提供的分析和建议仅供参考，不构成专业心理咨询或医疗建议。
-            如有需要，请寻求专业帮助。
+            {t('settings.disclaimer')}
           </p>
         </div>
       </section>

@@ -8,6 +8,7 @@ import { saveRecordAsync, getAllRecordsAsync } from '../services/storage'
 import { MOOD_TYPES, getMoodColor, getMoodBgClass, getMoodList } from '../utils/moodUtils'
 import { submitMoodStat } from '../services/apiService'
 import CaringCard from '../components/CaringCard'
+import { t } from '../i18n'
 
 export default function RecordPage() {
   const navigate = useNavigate()
@@ -175,16 +176,16 @@ export default function RecordPage() {
         <button
           onClick={() => navigate(-1)}
           className="p-2 rounded-xl hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-          aria-label="返回"
+          aria-label={t('common.back')}
         >
           <ArrowLeft size={20} aria-hidden="true" />
         </button>
         <div className="flex-1">
           <h1 className="text-lg font-semibold theme-text">
-            {isToday ? '记录今天的心情' : '记录心情'}
+            {isToday ? t('record.titleToday') : t('record.title')}
           </h1>
           <p className="text-xs theme-text-tertiary">
-            {result?.method === 'ai' ? '🤖 AI 分析' : result?.method === 'keyword' ? '📝 关键词分析' : ''}
+            {result?.method === 'ai' ? t('record.aiAnalyzed') : result?.method === 'keyword' ? t('record.keywordAnalyzed') : ''}
           </p>
         </div>
       </div>
@@ -204,7 +205,7 @@ export default function RecordPage() {
             navigate(`/record?date=${prev}`)
           }}
           className="p-2 rounded-lg hover:bg-white/10 theme-text-secondary hover:theme-text transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-          aria-label="前一天"
+          aria-label={t('record.prevDay')}
         >
           <ChevronLeft size={18} />
         </button>
@@ -213,7 +214,7 @@ export default function RecordPage() {
           <button
             onClick={() => setShowQuickJump(v => !v)}
             className="flex items-center gap-2 text-sm px-3 py-1.5 rounded-lg hover:bg-white/10 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-            aria-label="选择日期"
+            aria-label={t('record.selectDate')}
             aria-expanded={showQuickJump}
           >
             <CalendarDays size={14} className="theme-text-tertiary" aria-hidden="true" />
@@ -244,9 +245,9 @@ export default function RecordPage() {
               {/* 快捷日期 */}
               <div className="flex gap-2 mb-3">
                 {[
-                  { label: '今天', offset: 0 },
-                  { label: '昨天', offset: -1 },
-                  { label: '前天', offset: -2 },
+                  { label: t('record.today'), offset: 0 },
+                  { label: t('record.yesterday'), offset: -1 },
+                  { label: t('record.beforeYesterday'), offset: -2 },
                 ].map(({ label, offset }) => {
                   const d = addDays(new Date(), offset)
                   const ds = format(d, 'yyyy-MM-dd')
@@ -276,7 +277,7 @@ export default function RecordPage() {
                 className="w-full flex items-center justify-center gap-2 text-xs py-2.5 rounded-lg hover:bg-white/10 theme-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50"
               >
                 <CalendarDays size={13} aria-hidden="true" />
-                选择其他日期
+                {t('record.otherDate')}
               </button>
             </div>
           )}
@@ -290,7 +291,7 @@ export default function RecordPage() {
           }}
           disabled={isFuture}
           className="p-2 rounded-lg hover:bg-white/10 theme-text-secondary hover:theme-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-pink-400/50"
-          aria-label="后一天"
+          aria-label={t('record.nextDay')}
         >
           <ChevronRight size={18} />
         </button>
@@ -299,14 +300,14 @@ export default function RecordPage() {
       {/* 输入区 */}
       <div className="glass rounded-2xl p-5 mb-5">
         <label htmlFor="mood-input" className="text-sm theme-text-secondary block mb-3">
-          用一句话描述你现在的感受
+          {t('record.inputHint')}
         </label>
         <textarea
           id="mood-input"
           ref={textareaRef}
           value={text}
           onChange={e => setText(e.target.value)}
-          placeholder="比如：今天考试通过了，超级开心！"
+          placeholder={t('record.placeholder')}
           className="w-full bg-transparent border-none outline-none text-lg resize-none min-h-[80px] theme-text placeholder:theme-text-muted"
           rows={3}
           maxLength={500}
@@ -329,19 +330,19 @@ export default function RecordPage() {
               ) : (
                 <Sparkles size={16} aria-hidden="true" />
               )}
-              {loading ? '分析中...' : 'AI 分析'}
+              {loading ? t('record.analyzing') : t('record.aiAnalyze')}
             </button>
           ) : null}
         </div>
         <p id="hint-text" className="text-xs theme-text-muted mt-2">
-          提示：按 Ctrl+Enter 快速分析
+          {t('record.hint')}
         </p>
       </div>
 
       {/* 手动选择情绪 */}
       {!result && !saved && (
-        <div className="mb-5" role="group" aria-label="手动选择情绪">
-          <p className="text-sm theme-text-secondary mb-3">或者直接选择情绪：</p>
+        <div className="mb-5" role="group" aria-label={t('record.orSelect')}>
+          <p className="text-sm theme-text-secondary mb-3">{t('record.orSelect')}</p>
           <div className="flex gap-2 flex-wrap">
             {getMoodList().map(mood => (
               <MoodButton key={mood.key} mood={mood} onSelect={handleManualSelect} />
@@ -370,7 +371,7 @@ export default function RecordPage() {
               <div>
                 <p className="text-2xl font-bold theme-text">{MOOD_TYPES[result.mood]?.label}</p>
                 <p className="text-sm theme-text-secondary mt-1">
-                  情绪强度: {'★'.repeat(result.intensity)}{'☆'.repeat(5 - result.intensity)}
+                  {t('record.intensity')}: {'★'.repeat(result.intensity)}{'☆'.repeat(5 - result.intensity)}
                 </p>
               </div>
             </div>
@@ -416,23 +417,23 @@ export default function RecordPage() {
               className="w-full flex items-center justify-center gap-2 py-3.5 rounded-xl bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-400 hover:to-rose-400 text-white font-medium transition-all active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-pink-400/50"
             >
               <Send size={18} aria-hidden="true" />
-              {editing ? '重新保存' : '保存记录'}
+              {editing ? t('record.resave') : t('record.save')}
             </button>
           ) : (
             <div className="text-center py-3 animate-success-pulse" role="status">
-              <p className="text-green-400 text-sm font-medium">✓ 已保存</p>
+              <p className="text-green-400 text-sm font-medium">{t('record.saved')}</p>
               <div className="flex items-center justify-center gap-4 mt-2">
                 <button
                   onClick={() => setEditing(true)}
                   className="text-sm text-pink-400 hover:text-pink-300 transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
                 >
-                  编辑
+                  {t('record.edit')}
                 </button>
                 <button
                   onClick={() => navigate('/')}
                   className="text-sm theme-text-tertiary hover:theme-text-secondary transition-colors focus:outline-none focus:ring-2 focus:ring-pink-400/50 rounded-lg px-2 py-1"
                 >
-                  返回首页
+                  {t('record.backHome')}
                 </button>
               </div>
             </div>

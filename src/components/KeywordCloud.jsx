@@ -1,11 +1,7 @@
-/**
- * 关键词云组件
- * 从用户记录的 keywords 字段和文本中提取高频词，按频率渲染为不同大小的标签云
- */
 import { useMemo } from 'react'
 import { MOOD_TYPES } from '../utils/moodUtils'
+import { t } from '../i18n'
 
-// 情绪颜色映射
 const MOOD_COLORS = {
   very_negative: '#ef4444',
   negative: '#f97316',
@@ -14,7 +10,6 @@ const MOOD_COLORS = {
   very_positive: '#6366f1',
 }
 
-// 常见停用词（过滤掉无意义的高频词）
 const STOP_WORDS = new Set([
   '的', '了', '在', '是', '我', '有', '和', '就', '不', '人', '都', '一',
   '一个', '上', '也', '很', '到', '说', '要', '去', '你', '会', '着', '没有',
@@ -26,36 +21,18 @@ const STOP_WORDS = new Set([
   'the', 'a', 'an', 'is', 'are', 'was', 'were', 'be', 'been', 'am',
 ])
 
-/**
- * 从文本中提取有意义的关键词
- */
 function extractKeywordsFromText(text) {
   if (!text) return []
-  const words = []
-
-  // 按非中文字符分割，提取连续中文/英文片段
   const cleanText = text.replace(/[^\u4e00-\u9fff\uf900-\ufaffa-zA-Z]/g, ' ')
-  const segments = cleanText.split(/\s+/).filter(s => s.length >= 2)
-
-  for (const seg of segments) {
-    if (seg.length >= 2 && seg.length <= 6 && !STOP_WORDS.has(seg)) {
-      words.push(seg)
-    }
-  }
-
-  // 注意：不再提取 bigram，因为 bigram 会跨越标点边界拼出无意义片段
-  // 段落分割已足够提取"小骄傲""感受到了"等有意义词组
-
-  return words
+  return cleanText.split(/\s+/).filter(s => s.length >= 2 && s.length <= 6 && !STOP_WORDS.has(s))
 }
 
 export default function KeywordCloud({ records, maxWords = 20 }) {
   const keywords = useMemo(() => {
     const freq = new Map()
-    const moodScores = new Map() // 记录关键词出现时的情绪均分
+    const moodScores = new Map()
 
     for (const record of records) {
-      // 从 keywords 字段提取
       if (Array.isArray(record.keywords)) {
         for (const kw of record.keywords) {
           if (kw && kw.length >= 2 && kw.length <= 10 && !STOP_WORDS.has(kw)) {
@@ -66,8 +43,6 @@ export default function KeywordCloud({ records, maxWords = 20 }) {
           }
         }
       }
-
-      // 从文本中提取关键词
       const textWords = extractKeywordsFromText(record.text)
       for (const w of textWords) {
         freq.set(w, (freq.get(w) || 0) + 1)
@@ -77,13 +52,11 @@ export default function KeywordCloud({ records, maxWords = 20 }) {
       }
     }
 
-    // 按频率排序，取前 N 个
     const sorted = [...freq.entries()]
-      .filter(([word, count]) => count >= 2) // 至少出现 2 次
+      .filter(([, count]) => count >= 2)
       .sort(([, a], [, b]) => b - a)
       .slice(0, maxWords)
 
-    // 计算每个关键词的平均情绪分
     return sorted.map(([word, count]) => {
       const scores = moodScores.get(word) || [3]
       const avgScore = scores.reduce((s, v) => s + v, 0) / scores.length
@@ -98,31 +71,24 @@ export default function KeywordCloud({ records, maxWords = 20 }) {
     })
   }, [records, maxWords])
 
-  if (keywords.length < 3) {
-    return null
-  }
+  if (keywords.length < 3) return null
 
   const maxCount = keywords[0].count
 
   return (
     <div className="card p-4 mb-4">
-      <h2 className="text-sm font-semibold theme-text mb-3">高频关键词</h2>
+      <h2 className="text-sm font-semibold theme-text mb-3">{t('keyword.title')}</h2>
       <div className="flex flex-wrap gap-2 items-center justify-center">
-        {keywords.map(({ word, count, color }, idx) => {
+        {keywords.map(({ word, count, color }) => {
           const ratio = count / maxCount
-          const size = Math.round(11 + ratio * 7) // 11px ~ 18px
+          const size = Math.round(11 + ratio * 7)
           const opacity = 0.6 + ratio * 0.4
           return (
             <span
               key={word}
               className="inline-block px-2 py-0.5 rounded-md transition-all duration-200 hover:scale-110 cursor-default"
-              style={{
-                fontSize: `${size}px`,
-                color,
-                opacity,
-                backgroundColor: `${color}15`,
-              }}
-              title={`出现 ${count} 次`}
+              style={{ fontSize: `${size}px`, color, opacity, backgroundColor: `${color}15` }}
+              title={`${count}`}
             >
               {word}
             </span>

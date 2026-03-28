@@ -1,10 +1,10 @@
 import { useState, useMemo, useCallback } from 'react'
 import { format, startOfMonth, endOfMonth, eachDayOfInterval, startOfWeek, endOfWeek, isSameMonth, isToday, isFuture, getDay } from 'date-fns'
-import { zhCN } from 'date-fns/locale'
 import { ChevronLeft, ChevronRight } from 'lucide-react'
 import { getMoodColor, MOOD_TYPES } from '../utils/moodUtils'
+import { t } from '../i18n'
 
-const WEEKDAYS = ['日', '一', '二', '三', '四', '五', '六']
+const getWeekdays = () => t('heatmap.weekdays').split(',')
 
 export default function MonthCalendar({ records = [], onDayClick }) {
   const [currentMonth, setCurrentMonth] = useState(new Date())
@@ -44,18 +44,18 @@ export default function MonthCalendar({ records = [], onDayClick }) {
         <button
           onClick={handlePrev}
           className="p-2 rounded-lg hover:bg-white/10 theme-text-secondary hover:theme-text transition-colors"
-          aria-label="上个月"
+          aria-label={t('calendar.prevMonth')}
         >
           <ChevronLeft size={18} />
         </button>
         <span className="text-sm font-semibold theme-text">
-          {format(currentMonth, 'yyyy年M月', { locale: zhCN })}
+          {format(currentMonth, 'yyyy/M')}
         </span>
         <button
           onClick={handleNext}
           disabled={!canGoNext}
           className="p-2 rounded-lg hover:bg-white/10 theme-text-secondary hover:theme-text transition-colors disabled:opacity-30 disabled:cursor-not-allowed"
-          aria-label="下个月"
+          aria-label={t('calendar.nextMonth')}
         >
           <ChevronRight size={18} />
         </button>
@@ -63,7 +63,7 @@ export default function MonthCalendar({ records = [], onDayClick }) {
 
       {/* 星期标题 */}
       <div className="grid grid-cols-7 gap-1 mb-1">
-        {WEEKDAYS.map(day => (
+        {getWeekdays().map(day => (
           <div key={day} className="text-center text-xs theme-text-tertiary py-1 font-medium">
             {day}
           </div>
@@ -94,7 +94,7 @@ export default function MonthCalendar({ records = [], onDayClick }) {
                 ${record ? '' : 'bg-white/[0.03]'}
               `}
               style={record ? { backgroundColor: mood?.color + '25' } : undefined}
-              aria-label={`${format(day, 'M月d日', { locale: zhCN })}${record ? '，' + record.moodLabel : '，未记录'}`}
+              aria-label={`${format(day, 'M/d')}${record ? ' - ' + record.moodLabel : ' - ' + t('heatmap.unrecorded')}`}
             >
               <span className={`text-xs font-medium ${today ? 'text-indigo-400' : record ? 'theme-text' : 'theme-text-tertiary'}`}>
                 {format(day, 'd')}
@@ -121,15 +121,15 @@ export default function MonthCalendar({ records = [], onDayClick }) {
 
         return (
           <div className="flex items-center justify-center gap-4 mt-3 text-xs theme-text-tertiary">
-            <span>记录 {monthRecords.length} 天</span>
-            <span>平均 {avgMood.toFixed(1)}/5</span>
-            <span>覆盖率 {rate}%</span>
+            <span>{t('calendar.recorded').replace('{count}', monthRecords.length)}</span>
+            <span>{t('calendar.avgMood').replace('{avg}', avgMood.toFixed(1))}</span>
+            <span>{t('calendar.coverage').replace('{rate}', rate)}</span>
           </div>
         )
       })()}
       {/* 图例说明 */}
       <div className="flex items-center justify-center gap-3 mt-3 pt-3 border-t border-white/5">
-        <span className="text-[10px] theme-text-muted">情绪图例：</span>
+        <span className="text-[10px] theme-text-muted">{t('calendar.legendTitle')}</span>
         {Object.values(MOOD_TYPES).map(m => (
           <div key={m.key} className="flex items-center gap-1">
             <span className="text-xs">{m.emoji}</span>

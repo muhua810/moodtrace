@@ -4,6 +4,7 @@ import { ArrowLeft, Search, Calendar, ChevronRight } from 'lucide-react'
 import { format } from 'date-fns'
 import { getAllRecords } from '../services/storage'
 import { MOOD_TYPES, getMoodColor } from '../utils/moodUtils'
+import { t } from '../i18n'
 
 export default function HistoryPage() {
   const navigate = useNavigate()
@@ -54,9 +55,9 @@ export default function HistoryPage() {
         >
           <ArrowLeft size={20} style={{ color: 'var(--text-secondary)' }} />
         </button>
-        <h1 className="text-lg font-semibold">情绪回顾</h1>
+        <h1 className="text-lg font-semibold">{t('history.title')}</h1>
         <span className="text-xs ml-auto" style={{ color: 'var(--text-muted)' }}>
-          共 {allRecords.length} 条记录
+          {t('history.totalRecords').replace('{count}', allRecords.length)}
         </span>
       </div>
 
@@ -67,7 +68,7 @@ export default function HistoryPage() {
           type="text"
           value={searchText}
           onChange={e => setSearchText(e.target.value)}
-          placeholder="搜索记录内容或关键词..."
+          placeholder={t('history.search')}
           className="w-full rounded-xl pl-10 pr-4 py-2.5 text-sm"
           style={{
             background: 'var(--bg-card)',
@@ -112,7 +113,7 @@ export default function HistoryPage() {
         <div className="text-center py-12">
           <Calendar size={40} className="mx-auto mb-3" style={{ color: 'var(--text-muted)' }} />
           <p style={{ color: 'var(--text-muted)' }}>
-            {allRecords.length === 0 ? '还没有记录，去记录今天的心情吧！' : '没有找到匹配的记录'}
+            {allRecords.length === 0 ? t('history.noRecords') : t('history.noMatch')}
           </p>
         </div>
       ) : (
@@ -122,7 +123,7 @@ export default function HistoryPage() {
               <h3 className="text-sm font-medium mb-3" style={{ color: 'var(--text-secondary)' }}>
                 {month.replace('-', '年')}月
                 <span className="ml-2 text-xs" style={{ color: 'var(--text-muted)' }}>
-                  ({records.length} 条)
+                  t('history.monthCount').replace('{count}', records.length)
                 </span>
               </h3>
               <div className="rounded-2xl overflow-hidden" style={cardStyle}>
