@@ -44,6 +44,7 @@ const translations = {
     'home.guideDesc': '下方热力图展示了你每一天的情绪记录。点击任意日期可以查看或修改记录。试试切换年/月视图看看不同维度的情绪分布。',
     'home.loadingCommunity': '加载群体数据中……',
     'home.communityPeople': '人次',
+    'home.simLabel': '模拟',
     'home.moodPrettyGood': '心情不错',
     'home.today': '今天',
 
@@ -411,6 +412,7 @@ const translations = {
     'common.loading': '加载中...',
     'common.back': '返回',
     'common.yesterday': '昨天',
+    'common.close': '关闭',
   },
 
   en: {
@@ -451,6 +453,7 @@ const translations = {
     'home.guideDesc': 'The heatmap below shows your daily mood records. Click any date to view or edit. Try switching between year/month views for different perspectives.',
     'home.loadingCommunity': 'Loading community data...',
     'home.communityPeople': 'participants',
+    'home.simLabel': 'Demo',
     'home.moodPrettyGood': 'feeling good',
     'home.today': 'Today',
 
@@ -762,6 +765,7 @@ const translations = {
 
     'home.loadingCommunity': 'Loading community data...',
     'home.communityPeople': ' participants',
+    'home.simLabel': 'Démo',
     'home.moodPrettyGood': 'feeling good',
     'home.recordsHint': 'You have {count} records. Import a full year of sample data (365 days) to experience the annual report, trend analysis, and all features.',
     'home.everydayHint': 'Record your mood daily with one sentence, let AI analyze and discover emotional patterns',
@@ -793,6 +797,7 @@ const translations = {
     'common.loading': 'Loading...',
     'common.back': 'Back',
     'common.yesterday': 'Yesterday',
+    'common.close': 'Close',
   },
 
   ja: {
@@ -833,6 +838,7 @@ const translations = {
     'home.guideDesc': '下のヒートマップは毎日の感情記録を表示しています。日付をクリックして記録を確認・編集できます。年/月ビューを切り替えてみてください。',
     'home.loadingCommunity': 'コミュニティデータを読み込み中...',
     'home.communityPeople': '人',
+    'home.simLabel': 'デモ',
     'home.moodPrettyGood': '気分は上々',
     'home.today': '今日',
 
@@ -1175,6 +1181,7 @@ const translations = {
     'common.loading': '読み込み中...',
     'common.back': '戻る',
     'common.yesterday': '昨日',
+    'common.close': '閉じる',
   },
 
   ko: {
@@ -1214,6 +1221,7 @@ const translations = {
     'home.guideDesc': '아래 히트맵은 매일의 감정 기록을 보여줍니다. 날짜를 클릭하여 기록을 확인하거나 수정하세요.',
     'home.loadingCommunity': '커뮤니티 데이터 로딩 중...',
     'home.communityPeople': '명',
+    'home.simLabel': '시뮬',
     'home.moodPrettyGood': '기분 좋음',
     'home.today': '오늘',
     'greeting.lateNight': '늦은 밤이에요, 푹 쉬세요 🌙',
@@ -1536,6 +1544,7 @@ const translations = {
     'common.loading': '로딩 중...',
     'common.back': '뒤로',
     'common.yesterday': '어제',
+    'common.close': '닫기',
   },
 
   fr: {
@@ -1897,6 +1906,7 @@ const translations = {
     'common.loading': 'Chargement...',
     'common.back': 'Retour',
     'common.yesterday': 'Hier',
+    'common.close': 'Fermer',
   },
 
   es: {
@@ -2227,6 +2237,7 @@ const translations = {
 
     'home.loadingCommunity': 'Cargando datos comunitarios...',
     'home.communityPeople': ' participantes',
+    'home.simLabel': 'Demo',
     'home.moodPrettyGood': 'bastante bien',
     'home.recordsHint': 'Tienes {count} registros. Importa un año completo (365 días) para experimentar el informe anual, análisis de tendencias y todas las funciones.',
     'home.everydayHint': 'Registra tu ánimo cada día con una frase, la IA analiza y descubre patrones emocionales',
@@ -2258,6 +2269,7 @@ const translations = {
     'common.loading': 'Cargando...',
     'common.back': 'Volver',
     'common.yesterday': 'Ayer',
+    'common.close': 'Cerrar',
   },
 }
 

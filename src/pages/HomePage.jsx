@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { Plus, CalendarDays, LayoutGrid, Settings, Database, Sparkles, Zap, TrendingUp } from 'lucide-react'
-import { t } from '../i18n'
+import { t, formatDateLocalized } from '../i18n'
 import HeatmapCalendar from '../components/HeatmapCalendar'
 import MonthCalendar from '../components/MonthCalendar'
 import MiniTrend from '../components/MiniTrend'
@@ -198,7 +198,7 @@ export default function HomePage() {
         </div>
         <div className="flex items-center gap-2">
           <span className="text-xs theme-text-tertiary hidden sm:inline">
-            {new Date().toLocaleDateString('zh-CN', { month: 'long', day: 'numeric', weekday: 'short' })}
+            {formatDateLocalized(new Date(), 'short')}
           </span>
           <button
             onClick={() => navigate('/profile')}
@@ -247,11 +247,11 @@ export default function HomePage() {
             <span className="text-base">🌐</span>
             <h2 className="text-sm font-semibold theme-text">{t('home.communityMood')}</h2>
             {communityStats?.isDemo && (
-              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400">模拟</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400">{t('home.simLabel')}</span>
             )}
           </div>
           {communityStats && (
-            <span className="text-[10px] theme-text-muted">{communityStats.total} 人次</span>
+            <span className="text-[10px] theme-text-muted">{communityStats.total} {t('home.communityPeople')}</span>
           )}
         </div>
         {communityStats ? (
@@ -290,7 +290,7 @@ export default function HomePage() {
               ))}
             </div>
             <div className="flex items-center justify-between text-[10px] theme-text-tertiary">
-              <span>😊 {communityStats.moodPercentages?.positive || Math.round((communityStats.moods.positive / communityStats.total) * 100)}% 心情不错</span>
+              <span>😊 {communityStats.moodPercentages?.positive || Math.round((communityStats.moods.positive / communityStats.total) * 100)}% {t('home.moodPrettyGood')}</span>
               <button
                 onClick={() => navigate('/stats?tab=community')}
                 className="text-purple-400 hover:text-purple-300 transition-colors"
@@ -302,7 +302,7 @@ export default function HomePage() {
         ) : (
           <div className="flex items-center justify-center gap-2.5 py-3">
             <div className="w-4 h-4 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
-            <span className="text-xs theme-text-tertiary">加载群体数据中……</span>
+            <span className="text-xs theme-text-tertiary">{t('home.loadingCommunity')}</span>
           </div>
         )}
       </div>
@@ -315,7 +315,7 @@ export default function HomePage() {
             <div className="flex-1">
               <p className="text-sm font-medium theme-text">{t('home.fullReport')}</p>
               <p className="text-xs theme-text-tertiary mt-1">
-                当前有 {records.length} 条记录。导入一整年示例数据（365天），可完整体验年度报告、趋势分析等所有功能。
+                {t('home.recordsHint').replace('{count}', records.length)}
               </p>
               <button
                 onClick={handleImportDemo}
@@ -354,22 +354,22 @@ export default function HomePage() {
                 {t('home.subtitle')}
               </p>
               <p className="text-xs theme-text-tertiary mb-6">
-                每天一句话记录心情，AI 自动分析，发现情绪规律
+                {t('home.everydayHint')}
               </p>
 
               {/* 核心功能亮点 */}
               <div className="grid grid-cols-3 gap-3 mb-6 max-w-xs mx-auto">
                 <div className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5">
                   <span className="text-lg">🤖</span>
-                  <span className="text-[10px] theme-text-secondary">AI 分析</span>
+                  <span className="text-[10px] theme-text-secondary">{t('home.aiAnalyze')}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5">
                   <span className="text-lg">📊</span>
-                  <span className="text-[10px] theme-text-secondary">热力图</span>
+                  <span className="text-[10px] theme-text-secondary">{t('home.heatmapChart')}</span>
                 </div>
                 <div className="flex flex-col items-center gap-1.5 p-2 rounded-xl bg-white/5">
                   <span className="text-lg">🔒</span>
-                  <span className="text-[10px] theme-text-secondary">隐私保护</span>
+                  <span className="text-[10px] theme-text-secondary">{t('home.privacyFirst')}</span>
                 </div>
               </div>
 
@@ -388,13 +388,13 @@ export default function HomePage() {
                 {importingDemo ? '...' : t('home.oneClickDemo')}
               </button>
               <p className="text-[10px] theme-text-muted mb-4">
-                导入 365 天模拟数据 · 热力图 · 统计 · 年度报告全部解锁
+                {t('home.importHint')}
               </p>
 
               {/* 分隔线 */}
               <div className="flex items-center gap-3 max-w-xs mx-auto mb-4">
                 <div className="flex-1 h-px bg-white/10" />
-                <span className="text-[10px] theme-text-muted">或者</span>
+                <span className="text-[10px] theme-text-muted">{t('home.orSeparator')}</span>
                 <div className="flex-1 h-px bg-white/10" />
               </div>
 
@@ -455,16 +455,16 @@ export default function HomePage() {
           <button
             onClick={dismissGuide}
             className="absolute top-2 right-2 w-6 h-6 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center theme-text-tertiary hover:theme-text text-xs transition-colors"
-            aria-label="关闭引导"
+            aria-label={t('common.close')}
           >
             ✕
           </button>
           <div className="flex items-start gap-3">
             <span className="text-2xl mt-0.5">👇</span>
             <div>
-              <p className="text-sm font-medium theme-text mb-1">你的专属心迹在这里！</p>
+              <p className="text-sm font-medium theme-text mb-1">{t('home.guideTitle')}</p>
               <p className="text-xs theme-text-tertiary">
-                下方热力图展示了你每一天的情绪记录。点击任意日期可以查看或修改记录。试试切换年/月视图看看不同维度的情绪分布。
+                {t('home.guideDesc')}
               </p>
             </div>
           </div>
