@@ -54,11 +54,15 @@ export async function submitMoodStat({ mood, date, keywords }) {
     if (Array.isArray(keywords) && keywords.length > 0) {
       body.keywords = keywords.slice(0, 3)
     }
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8000)
     const response = await fetch(`${apiBase}/api/stats/submit`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
+      signal: controller.signal,
     })
+    clearTimeout(timeoutId)
     return response.ok
   } catch {
     // 静默失败，不影响主流程
@@ -74,10 +78,19 @@ export async function submitMoodStat({ mood, date, keywords }) {
 export async function fetchMoodSummary(month) {
   try {
     const apiBase = getApiBase()
-    const response = await fetch(`${apiBase}/api/stats/summary?month=${month}`)
-    if (!response.ok) return null
+    const controller = new AbortController()
+    const timeoutId = setTimeout(() => controller.abort(), 8000)
+    const response = await fetch(`${apiBase}/api/stats/summary?month=${month}`, {
+      signal: controller.signal,
+    })
+    clearTimeout(timeoutId)
+    if (!response.ok) {
+      console.warn('[MoodTrace] API 响应非 200:', response.status)
+      return null
+    }
     return await response.json()
-  } catch {
+  } catch (err) {
+    console.warn('[MoodTrace] API 请求失败:', err.message || err)
     return null
   }
 }

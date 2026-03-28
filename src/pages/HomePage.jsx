@@ -68,8 +68,14 @@ export default function HomePage() {
   useEffect(() => {
     const month = new Date().toISOString().slice(0, 7)
     fetchMoodSummary(month).then(data => {
-      if (data && data.total > 0) setCommunityStats(data)
-    }).catch(() => {})
+      if (data && data.total > 0) {
+        setCommunityStats(data)
+      } else {
+        console.warn('[MoodTrace] 群体情绪数据为空或请求失败', data)
+      }
+    }).catch(err => {
+      console.warn('[MoodTrace] 群体情绪 API 请求异常:', err)
+    })
   }, [])
 
   // 初始化：异步加载（支持加密模式）
@@ -206,7 +212,7 @@ export default function HomePage() {
       </div>
 
       {/* 群体情绪概览 — 前后端协作展示 */}
-      {communityStats && !isEmpty && (
+      {communityStats && (
         <div className="card p-4 mb-4 animate-fade-in-up border border-purple-500/10">
           <div className="flex items-center justify-between mb-3">
             <div className="flex items-center gap-2">
