@@ -94,10 +94,18 @@ export default function StatsPage() {
 
   const importDemoToCommunity = () => {
     const demoRecords = generateDemoData(30)
-    const moods = { very_negative: 0, negative: 0, neutral: 0, positive: 0, very_positive: 0 }
-    demoRecords.forEach(r => { if (moods[r.mood] !== undefined) moods[r.mood]++ })
+    // 统计情绪比例
+    const moodCounts = { very_negative: 0, negative: 0, neutral: 0, positive: 0, very_positive: 0 }
+    demoRecords.forEach(r => { if (moodCounts[r.mood] !== undefined) moodCounts[r.mood]++ })
+    // 模拟群体规模：30天 × 日均参与人数
+    const total = 2847
+    const sampleTotal = demoRecords.length || 1
+    const moods = {}
+    Object.keys(moodCounts).forEach(k => {
+      moods[k] = Math.round((moodCounts[k] / sampleTotal) * total)
+    })
     const data = {
-      total: demoRecords.length,
+      total,
       moods,
       isDemo: true,
     }

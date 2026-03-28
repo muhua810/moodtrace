@@ -64,27 +64,30 @@ export default function HomePage() {
     else if (hour < 22) setGreeting('晚上好 🌆')
     else setGreeting('夜深了 🌙')
   }, [])
-  // 内置群体情绪演示数据（API 不可达时的 fallback）
+  // 内置群体情绪演示数据（API 不可达时的 fallback）— 缓存结果，刷新不随机变化
   const getDemoFallback = useCallback(() => {
+    if (getDemoFallback._cached) return getDemoFallback._cached
     const now = new Date()
     const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()
     const days = {}
     const moods = { very_negative: 0, negative: 0, neutral: 0, positive: 0, very_positive: 0 }
+    // 固定分布比例，不用随机数，保证刷新一致
+    const dayDistribution = [
+      { very_negative: 3, negative: 13, neutral: 30, positive: 37, very_positive: 17 },
+      { very_negative: 4, negative: 14, neutral: 28, positive: 38, very_positive: 16 },
+      { very_negative: 2, negative: 12, neutral: 32, positive: 36, very_positive: 18 },
+    ]
     for (let d = 1; d <= Math.min(daysInMonth, now.getDate()); d++) {
       const dayStr = String(d).padStart(2, '0')
-      const total = 80 + Math.floor(Math.random() * 30)
-      const dayMoods = {
-        very_negative: Math.floor(total * 0.03),
-        negative: Math.floor(total * 0.14),
-        neutral: Math.floor(total * 0.30),
-        positive: Math.floor(total * 0.37),
-        very_positive: Math.floor(total * 0.16),
-      }
-      days[dayStr] = { total, moods: dayMoods }
-      Object.entries(dayMoods).forEach(([k, v]) => { moods[k] += v })
+      const pattern = dayDistribution[(d - 1) % dayDistribution.length]
+      const total = Object.values(pattern).reduce((s, v) => s + v, 0)
+      days[dayStr] = { total, moods: { ...pattern } }
+      Object.entries(pattern).forEach(([k, v]) => { moods[k] += v })
     }
     const totalRecords = Object.values(days).reduce((s, d) => s + d.total, 0)
-    return { total: totalRecords, moods, days, isDemo: true }
+    const result = { total: totalRecords, moods, days, isDemo: true }
+    getDemoFallback._cached = result
+    return result
   }, [])
 
   // 加载群体情绪统计
