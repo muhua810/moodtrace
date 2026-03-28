@@ -31,7 +31,12 @@ export default function StatsPage() {
   const [activeTab, setActiveTab] = useState(() => searchParams.get('tab') || 'overview')
   const [communityData, setCommunityData] = useState(null)
   const [communityLoading, setCommunityLoading] = useState(false)
-  const [demoCommunityData, setDemoCommunityData] = useState(null)
+  const [demoCommunityData, setDemoCommunityData] = useState(() => {
+    try {
+      const saved = localStorage.getItem('demo_community_data')
+      return saved ? JSON.parse(saved) : null
+    } catch { return null }
+  })
 
   // 初始化：异步加载（支持加密模式）
   useEffect(() => {
@@ -91,15 +96,18 @@ export default function StatsPage() {
     const demoRecords = generateDemoData(30)
     const moods = { very_negative: 0, negative: 0, neutral: 0, positive: 0, very_positive: 0 }
     demoRecords.forEach(r => { if (moods[r.mood] !== undefined) moods[r.mood]++ })
-    setDemoCommunityData({
+    const data = {
       total: demoRecords.length,
       moods,
       isDemo: true,
-    })
+    }
+    setDemoCommunityData(data)
+    try { localStorage.setItem('demo_community_data', JSON.stringify(data)) } catch {}
   }
 
   const clearDemoCommunity = () => {
     setDemoCommunityData(null)
+    try { localStorage.removeItem('demo_community_data') } catch {}
   }
 
   const stats = useMemo(() => {
