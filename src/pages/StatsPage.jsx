@@ -793,18 +793,19 @@ function AnnualReport({ records, navigate }) {
     const counts = {}
     Object.keys(MOOD_TYPES).forEach(k => counts[k] = 0)
     mr.forEach(r => { if (counts[r.mood] !== undefined) counts[r.mood]++ })
-    // 没有记录的月份用 0.2 填充，河流图保持连续但极细
-    const hasData = mr.length > 0
     return {
       month: name,
-      _empty: !hasData,
-      very_negative: hasData ? counts.very_negative : 0.2,
-      negative: hasData ? counts.negative : 0.2,
-      neutral: hasData ? counts.neutral : 0.2,
-      positive: hasData ? counts.positive : 0.2,
-      very_positive: hasData ? counts.very_positive : 0.2,
+      very_negative: counts.very_negative,
+      negative: counts.negative,
+      neutral: counts.neutral,
+      positive: counts.positive,
+      very_positive: counts.very_positive,
+      _total: mr.length,
     }
   })
+  // 截掉末尾无数据月份，河流自然结束
+  const lastDataIdx = riverData.map(d => d._total).lastIndexOf(yearRecords.length > 0 ? 1 : 0)
+  const riverDisplay = lastDataIdx >= 0 ? riverData.slice(0, lastDataIdx + 1) : riverData
 
   // 年度关键词
   const STOP = new Set(['的','了','在','是','我','有','和','就','不','人','都','一','一个','上','也','很','到','说','要','去','你','会','着','没有','看','好','自己','这','他','她','它','们','那','些','什么','怎么','还是','因为','所以','但是','然后','如果','虽然','今天','感觉','觉得','有点','真的','可以','已经','不是','不想','不过','一直','一下','一些','这些','那些','这样','那样','这么','那么','一天','一次','一样','一点','一种'])
@@ -977,14 +978,13 @@ function AnnualReport({ records, navigate }) {
         </h3>
         <div style={{ width: '100%', height: 200 }}>
           <ResponsiveContainer>
-            <AreaChart data={riverData} stackOffset="expand">
+            <AreaChart data={riverDisplay} stackOffset="expand">
               <CartesianGrid strokeDasharray="3 3" stroke="var(--theme-border)" vertical={false} />
               <XAxis dataKey="month" tick={{ fontSize: 9, fill: 'var(--theme-text-tertiary)' }} axisLine={false} tickLine={false} />
               <YAxis tick={{ fontSize: 9, fill: 'var(--theme-text-tertiary)' }} axisLine={false} tickLine={false} width={30} tickFormatter={v => `${Math.round(v*100)}%`} />
               <Tooltip
                 contentStyle={{ background: 'var(--theme-bg)', border: '1px solid var(--theme-border)', borderRadius: 10, fontSize: 11, color: 'var(--theme-text)' }}
                 formatter={(value, name, props) => {
-                  if (props.payload?._empty) return ['无数据', MOOD_TYPES[name]?.label || name]
                   const keys = ['very_positive','positive','neutral','negative','very_negative']
                   const raw = keys.map(k => props.payload?.[k] || 0)
                   const sum = raw.reduce((a,b) => a+b, 0) || 1
