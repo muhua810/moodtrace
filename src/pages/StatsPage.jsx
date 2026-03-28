@@ -10,6 +10,7 @@ import {
 import { MOOD_TYPES, formatIntensityStars } from '../utils/moodUtils'
 import { getAllRecords, getAllRecordsAsync, getStreakDays, getMaxStreak } from '../services/storage'
 import { fetchMoodSummary } from '../services/apiService'
+import { generateDemoData } from '../services/demoData'
 
 const MOOD_COLORS = {
   very_negative: '#ef4444',
@@ -29,6 +30,7 @@ export default function StatsPage() {
   const [activeTab, setActiveTab] = useState('overview')
   const [communityData, setCommunityData] = useState(null)
   const [communityLoading, setCommunityLoading] = useState(false)
+  const [demoCommunityData, setDemoCommunityData] = useState(null)
 
   // 初始化：异步加载（支持加密模式）
   useEffect(() => {
@@ -82,6 +84,21 @@ export default function StatsPage() {
       }
     } catch { /* 静默失败 */ }
     setCommunityLoading(false)
+  }
+
+  const importDemoToCommunity = () => {
+    const demoRecords = generateDemoData(30)
+    const moods = { very_negative: 0, negative: 0, neutral: 0, positive: 0, very_positive: 0 }
+    demoRecords.forEach(r => { if (moods[r.mood] !== undefined) moods[r.mood]++ })
+    setDemoCommunityData({
+      total: demoRecords.length,
+      moods,
+      isDemo: true,
+    })
+  }
+
+  const clearDemoCommunity = () => {
+    setDemoCommunityData(null)
   }
 
   const stats = useMemo(() => {
@@ -183,7 +200,7 @@ export default function StatsPage() {
 
   // 群体数据处理：优先用服务端数据，无数据时用本地数据兜底
   const communityChartData = useMemo(() => {
-    const source = communityData || (stats ? {
+    const source = communityData || demoCommunityData || (stats ? {
       total: stats.total,
       moods: Object.fromEntries(stats.pieData.map(p => [p.key, p.value])),
     } : null)
@@ -198,8 +215,8 @@ export default function StatsPage() {
     const avg = Object.entries(source.moods).reduce((sum, [key, count]) => {
       return sum + (MOOD_SCORE_MAP[key] || 3) * count
     }, 0) / (source.total || 1)
-    return { pie, avg: avg.toFixed(1), total: source.total, isLocal: !communityData, isDemo: communityData?.isDemo || false }
-  }, [communityData, stats])
+    return { pie, avg: avg.toFixed(1), total: source.total, isLocal: !communityData && !demoCommunityData, isDemo: communityData?.isDemo || demoCommunityData?.isDemo || false }
+  }, [communityData, demoCommunityData, stats])
 
   if (!stats) {
     return (
@@ -565,14 +582,34 @@ export default function StatsPage() {
               <h3 className="text-sm font-semibold theme-text flex items-center gap-2">
                 <Users size={14} className="text-cyan-400" /> {communityChartData?.isLocal ? '我的情绪总览' : communityChartData?.isDemo ? '群体情绪（演示）' : '本月群体情绪'}
               </h3>
-              <button
-                onClick={() => loadCommunityData(true)}
-                disabled={communityLoading}
-                className="p-1.5 rounded-lg hover:bg-white/10 theme-text-tertiary hover:theme-text transition-colors"
-                aria-label="刷新"
-              >
-                <RefreshCw size={14} className={communityLoading ? 'animate-spin' : ''} />
-              </button>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={() => loadCommunityData(true)}
+                  disabled={communityLoading}
+                  className="p-1.5 rounded-lg hover:bg-white/10 theme-text-tertiary hover:theme-text transition-colors"
+                  aria-label="刷新"
+                >
+                  <RefreshCw size={14} className={communityLoading ? 'animate-spin' : ''} />
+                </button>
+                {!demoCommunityData && !communityData && (
+                  <button
+                    onClick={importDemoToCommunity}
+                    className="px-2.5 py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 text-xs font-medium transition-colors"
+                    title="导入模拟群体数据用于演示"
+                  >
+                    📊 导入演示
+                  </button>
+                )}
+                {demoCommunityData && !communityData && (
+                  <button
+                    onClick={clearDemoCommunity}
+                    className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-white/10 theme-text-tertiary text-xs transition-colors"
+                    title="清除演示数据"
+                  >
+                    清除
+                  </button>
+                )}
+              </div>
             </div>
 
             {communityChartData ? (
