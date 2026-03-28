@@ -256,7 +256,7 @@ export default function HomePage() {
         </div>
         {communityStats ? (
           <>
-            <div className="flex gap-1 h-2 rounded-full overflow-hidden mb-2" role="img" aria-label="群体情绪分布">
+            <div className="flex gap-1 h-2 rounded-full overflow-hidden mb-2" role="img" aria-label={t('aria.groupMood')}>
               {Object.entries(communityStats.moods).map(([mood, count]) => {
                 const pct = communityStats.total > 0 ? (count / communityStats.total * 100) : 0
                 if (pct < 1) return null
