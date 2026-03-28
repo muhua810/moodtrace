@@ -240,47 +240,56 @@ export default function HomePage() {
       </div>
 
       {/* 群体情绪概览 — 前后端协作展示 */}
-      {communityStats && (
-        <div className="card p-4 mb-4 animate-fade-in-up border border-purple-500/10">
-          <div className="flex items-center justify-between mb-3">
-            <div className="flex items-center gap-2">
-              <span className="text-base">🌐</span>
-              <h2 className="text-sm font-semibold theme-text">今日群体情绪</h2>
-              {communityStats.isDemo && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400">模拟</span>
-              )}
-            </div>
+      <div className="card p-4 mb-4 border border-purple-500/10">
+        <div className="flex items-center justify-between mb-3">
+          <div className="flex items-center gap-2">
+            <span className="text-base">🌐</span>
+            <h2 className="text-sm font-semibold theme-text">今日群体情绪</h2>
+            {communityStats?.isDemo && (
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-500/10 text-purple-400">模拟</span>
+            )}
+          </div>
+          {communityStats && (
             <span className="text-[10px] theme-text-muted">{communityStats.total} 人次</span>
-          </div>
-          <div className="flex gap-1 h-2 rounded-full overflow-hidden mb-2" role="img" aria-label="群体情绪分布">
-            {Object.entries(communityStats.moods).map(([mood, count]) => {
-              const pct = communityStats.total > 0 ? (count / communityStats.total * 100) : 0
-              if (pct < 1) return null
-              const colors = {
-                very_negative: '#ef4444', negative: '#f97316',
-                neutral: '#eab308', positive: '#22c55e', very_positive: '#6366f1',
-              }
-              return (
-                <div
-                  key={mood}
-                  style={{ width: `${pct}%`, backgroundColor: colors[mood] }}
-                  className="rounded-full transition-all duration-500"
-                  title={`${mood}: ${Math.round(pct)}%`}
-                />
-              )
-            })}
-          </div>
-          <div className="flex items-center justify-between text-[10px] theme-text-tertiary">
-            <span>😊 {communityStats.moodPercentages?.positive || Math.round((communityStats.moods.positive / communityStats.total) * 100)}% 心情不错</span>
-            <button
-              onClick={() => navigate('/stats?tab=community')}
-              className="text-purple-400 hover:text-purple-300 transition-colors"
-            >
-              查看详情 →
-            </button>
-          </div>
+          )}
         </div>
-      )}
+        {communityStats ? (
+          <>
+            <div className="flex gap-1 h-2 rounded-full overflow-hidden mb-2" role="img" aria-label="群体情绪分布">
+              {Object.entries(communityStats.moods).map(([mood, count]) => {
+                const pct = communityStats.total > 0 ? (count / communityStats.total * 100) : 0
+                if (pct < 1) return null
+                const colors = {
+                  very_negative: '#ef4444', negative: '#f97316',
+                  neutral: '#eab308', positive: '#22c55e', very_positive: '#6366f1',
+                }
+                return (
+                  <div
+                    key={mood}
+                    style={{ width: `${pct}%`, backgroundColor: colors[mood] }}
+                    className="rounded-full transition-all duration-500"
+                    title={`${mood}: ${Math.round(pct)}%`}
+                  />
+                )
+              })}
+            </div>
+            <div className="flex items-center justify-between text-[10px] theme-text-tertiary">
+              <span>😊 {communityStats.moodPercentages?.positive || Math.round((communityStats.moods.positive / communityStats.total) * 100)}% 心情不错</span>
+              <button
+                onClick={() => navigate('/stats?tab=community')}
+                className="text-purple-400 hover:text-purple-300 transition-colors"
+              >
+                查看详情 →
+              </button>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-center gap-2.5 py-3">
+            <div className="w-4 h-4 border-2 border-purple-400/30 border-t-purple-400 rounded-full animate-spin" />
+            <span className="text-xs theme-text-tertiary">加载群体数据中……</span>
+          </div>
+        )}
+      </div>
 
       {/* 数据量不足提示：检测到旧数据（<300天）时提示重新导入完整年份 */}
       {!isEmpty && records.length < 300 && (
