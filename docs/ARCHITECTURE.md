@@ -287,7 +287,7 @@ Tailwind 的 `dark:` 前缀方案需要大量重复类名。CSS 变量 + `data-t
 
 ![部署架构](deployment.svg)
 
-### 构建产物分析（v1.9.1，含 manualChunks 代码分割）
+### 构建产物分析（v2.1.3，含 manualChunks 代码分割）
 
 | 文件 | 大小 | gzip | 说明 |
 |------|------|------|------|
