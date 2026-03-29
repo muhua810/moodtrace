@@ -115,6 +115,7 @@
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | 架构文档 — 系统分层、设计决策、部署架构 |
 | [REQUIREMENTS.md](docs/REQUIREMENTS.md) | 需求分析 — 用户画像、功能需求、竞品分析 |
 | [TESTING.md](docs/TESTING.md) | 测试报告 — 测试用例清单、兼容性、性能数据 |
+| [ACCURACY_REPORT.md](docs/ACCURACY_REPORT.md) | 准确率报告 — 情绪分析引擎准确率、F1 分数、降级链表现 |
 | [CHANGELOG.md](docs/CHANGELOG.md) | 版本更新日志 |
 
 ## 🚀 快速开始
