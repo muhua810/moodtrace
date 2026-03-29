@@ -3,6 +3,15 @@ import { secureKeyGet } from '../utils/crypto'
 import { getApiBase } from './apiService'
 import { statisticalAnalyze, getModelInfo } from './statisticalAnalyzer'
 
+// 从拆分模块导入
+import {
+  KEYWORD_RULES, NEUTRAL_KEYWORDS, SLANG_KEYWORDS,
+  EMOJI_MOOD_MAP,
+  detectSarcasm,
+  splitClauses, isNegated, hasRelativeExpression, detectReversal,
+  hasCrisisKeywords,
+} from './analyze'
+
 const MOOD_KEY_MAP = {
   1: 'very_negative',
   2: 'negative',
@@ -11,156 +20,8 @@ const MOOD_KEY_MAP = {
   5: 'very_positive',
 }
 
-// 关键词规则：score 越极端（距3越远）优先级越高
-const KEYWORD_RULES = [
-  { score: 5, keywords: ['超级开心', '太开心了', '太高兴', '兴奋', '激动', '幸福', '快乐极了', '完美', '太棒了', '最好', '太爽', '狂喜', '美滋滋', '乐开花', '笑死', '哈哈', '笑疯', '开森', '绝了', '完美的一天', '幸福感爆棚', '乐不可支', '心花怒放', '喜出望外', '欢天喜地'] },
-  { score: 4, keywords: ['开心', '高兴', '不错', '挺好', '满意', '舒服', '愉快', '轻松', '快乐', '温暖', '美好', '期待', '加油', '顺利', '成功', '赞', '棒', '厉害', '惊喜', '骄傲', '自信', '感恩', '感谢', '喜欢', '爱', '温柔', '可爱', '甜甜', '惬意', '悠闲', '享受', '爽', '酷', 'nice', 'good', 'great', 'happy', 'love', '知足', '满足', '欣慰', '庆幸', '真好', '好运', '有进步', '还挺好', '挺开心', '心情好', '状态好', '运气好', '值得', '充实', '有意义', '有成就感', '有希望', '欣慰', '得意', '美妙', '幸福的'] },
-  { score: 2, keywords: ['难过', '伤心', '失望', '沮丧', '低落', '郁闷', '烦躁', '疲惫', '累', '辛苦', '压力', '焦虑', '担心', '不安', '紧张', '害怕', '孤独', '寂寞', '委屈', '无奈', '痛苦', '哭', '呜呜', '唉', '烦', '好难', '太难', '想哭', '难受', '心酸', 'sad', 'tired', 'stressed', '好烦', '好累', '心累', '心烦', '不爽', '不高兴', '不开心', '有点烦', '有点累', '有点难', '想太多', '睡不着', '失眠', '头疼', '好难过', '丧', '自闭', '崩溃', '纠结', '抓狂', '心塞', '心慌', '忐忑', '消沉', '萎靡', '憔悴'] },
-  { score: 1, keywords: ['绝望', '崩溃了', '不想活', '心碎', '万念俱灰', '生无可恋', '痛不欲绝', '太痛苦', '受不了了', '极度低落', '完全崩溃', '痛彻心扉', '撕心裂肺'] },
-]
+// ============ 分析单个分句的情绪得分 ============
 
-const NEUTRAL_KEYWORDS = ['一般', '还行', '普通', '正常', '平淡', '没什么', '就这样', '凑合', '马马虎虎', '不好不坏', 'soso', 'okay', 'fine', '中规中矩', '过得去', '无功无过', '不上不下', '一如既往']
-
-// ============ 反讽/阴阳怪气检测 ============
-const SARCASM_PATTERNS = [
-  // "呢"结尾 + 正面词 → 大概率反讽
-  { test: (text) => /呢[！!~～。.]*$/.test(text) && POSITIVE_SARCASM_WORDS.some(w => text.includes(w)), flipTo: 'negative' },
-  // "呵呵"独立出现 → 反讽
-  { test: (text) => /呵呵[！!~～。.]*$/.test(text) || /^呵呵/.test(text), flipTo: 'negative' },
-  // "真是太X了呢"结构 → 反讽
-  { test: (text) => /真是.{0,6}(好|棒|开心|高兴|厉害|优秀|完美|精彩)啊?[呢！!~～]+$/.test(text), flipTo: 'negative' },
-  // "好一个" + 正面词 → 反讽
-  { test: (text) => /好一个.{0,6}(开心|高兴|幸福|美好)/.test(text), flipTo: 'negative' },
-  // "哈哈" + 负面emoji → 反讽（笑哭）
-  { test: (text) => /哈哈/.test(text) && /😭|💀|🤡|😰|😅/.test(text), flipTo: 'negative' },
-  // 纯粹一串"哈"或"笑"后跟负面词
-  { test: (text) => /^[哈嘻]{3,}/.test(text) && /了|完|死|没/.test(text), flipTo: 'negative' },
-]
-
-const POSITIVE_SARCASM_WORDS = ['开心', '高兴', '棒', '好', '厉害', '优秀', '完美', '幸福', '美好', '快乐', '精彩', '太爽']
-
-// ============ 网络用语/缩写补充 ============
-const SLANG_KEYWORDS = [
-  { score: 5, keywords: ['绝绝子', 'yyds', '破防了', 'awsl', '好家伙', '太绝了', '赢麻了', '封神', '血赚'] },
-  { score: 4, keywords: ['针不戳', '真不错', '可以可以', '还挺好', '有被暖到', '有被治愈到', '有被感动到', '爱了', '好家伙真不错'] },
-  { score: 2, keywords: ['破防', 'emo', 'emoc了', '蚌埠住了', '难绷', '绷不住了', '寄了', '无语', '裂开', '人麻了', '心态崩了', '很烦', '搞不动', '顶不住', '遭不住', '难顶', '不想干', '躺平', '摆烂', '润了', '我吐了', '想鼠', '不想动'] },
-  { score: 1, keywords: ['想死', '不想活了', '活不下去', '想不开', '去死', '了结'] },
-]
-
-// ============ Emoji 情绪映射 ============
-const EMOJI_MOOD_MAP = {
-  // 非常正面
-  '😀': 5, '😃': 5, '😄': 5, '😁': 5, '😆': 5, '🥰': 5, '😍': 5, '🤩': 5, '😘': 5, '😗': 5,
-  '😚': 5, '😙': 5, '🥲': 4, '😋': 5, '😛': 5, '😜': 5, '🤪': 5, '😝': 5, '🤑': 5,
-  '🤗': 5, '🤭': 4, '😌': 4, '😊': 5, '🎉': 5, '🎊': 5, '🥳': 5, '🏆': 5, '💪': 4,
-  '❤️': 5, '💕': 5, '💖': 5, '💗': 5, '✨': 4, '🌟': 5, '⭐': 4, '🌈': 4, '☀️': 4,
-  // 正面
-  '🙂': 4, '🙃': 4, '😏': 4, '😎': 4, '🤓': 3, '😺': 4,
-  // 中性
-  '😐': 3, '😶': 3, '😑': 3, '🤔': 3, '🫤': 3, '🤷': 3, '😐': 3, '😴': 3,
-  // 负面
-  '😟': 2, '😕': 2, '🙁': 2, '☹️': 2, '😮‍💨': 2, '😔': 2, '😞': 2, '😣': 2,
-  '😖': 2, '😫': 2, '😩': 2, '🥺': 2, '😢': 2, '😰': 2, '😨': 2, '😧': 2,
-  '😥': 2, '😓': 2, '🤧': 2, '🤒': 2, '🤕': 2, '😵': 2, '🫠': 2,
-  // 非常负面
-  '😭': 1, '😤': 1, '😡': 1, '🤬': 1, '😠': 1, '👿': 1, '💀': 1, '☠️': 1,
-  '😱': 1, '🥵': 1, '🥶': 1, '🥴': 1, '🤯': 1, '😱': 1,
-}
-
-// ============ 否定词（扩大窗口到 10 字符） ============
-const NEGATION_WORDS = [
-  // 基础否定
-  '不', '没', '没有', '不是', '不会', '别', '从不', '绝不', '毫不', '毫无', '并非',
-  '再也不', '不再', '无法',
-  // 新增否定词
-  '远非', '远没有', '算不得', '称不上',
-  // 复合否定（更长的优先匹配）
-  '不太', '不怎么', '没那么', '不算', '算不上', '谈不上', '说不上', '不至于',
-  '不那么', '不太那么', '并非真的',
-]
-
-const NEGATION_WINDOW = 10 // 否定词检测窗口扩大到 10 字符
-
-// ============ 反转模式（"虽然...但是..."后半句权重更高） ============
-const REVERSAL_PATTERNS = [
-  { before: '虽然', after: '但是' },
-  { before: '虽然', after: '但' },
-  { before: '尽管', after: '但是' },
-  { before: '尽管', after: '但' },
-  { before: '虽说', after: '但是' },
-  { before: '虽说', after: '但' },
-  { before: '虽然', after: '不过' },
-  { before: '尽管', after: '不过' },
-]
-
-// ============ 分词：按标点/空格分割句子 ============
-function splitClauses(text) {
-  // 按常见中文标点和空格分句
-  const parts = text.split(/[,，。！？；、\s!?\.;]+/).filter(s => s.trim().length > 0)
-  return parts.length > 0 ? parts : [text]
-}
-
-/**
- * 检查关键词是否被否定词修饰
- * 在关键词前面一定窗口内查找否定词（长否定词优先匹配）
- */
-function isNegated(text, keyword) {
-  const idx = text.indexOf(keyword)
-  if (idx <= 0) return false
-
-  // 检查关键词前 NEGATION_WINDOW 个字符的窗口
-  const windowStart = Math.max(0, idx - NEGATION_WINDOW)
-  const prefix = text.substring(windowStart, idx)
-
-  // 按长度降序排列，长否定词优先匹配
-  const sortedNeg = [...NEGATION_WORDS].sort((a, b) => b.length - a.length)
-  for (const neg of sortedNeg) {
-    if (prefix.endsWith(neg)) return true
-  }
-  return false
-}
-
-/**
- * 检测相对化表达（"没那么难过" → 弱化情绪强度）
- */
-function hasRelativeExpression(text) {
-  const patterns = ['没那么', '不那么', '不至于', '还算', '勉强']
-  return patterns.some(p => text.includes(p))
-}
-
-/**
- * 检测反讽表达
- * 返回 { isSarcasm: boolean, flipTo: string|null }
- */
-function detectSarcasm(text) {
-  for (const pattern of SARCASM_PATTERNS) {
-    if (pattern.test(text)) {
-      return { isSarcasm: true, flipTo: pattern.flipTo }
-    }
-  }
-  return { isSarcasm: false, flipTo: null }
-}
-
-/**
- * 检测反转模式（"虽然...但是..."后半句权重更高）
- * 返回 { hasReversal: boolean, afterIndex: number } — afterIndex 是"但是"开始的位置
- */
-function detectReversal(text) {
-  for (const pattern of REVERSAL_PATTERNS) {
-    const beforeIdx = text.indexOf(pattern.before)
-    if (beforeIdx < 0) continue
-    const afterIdx = text.indexOf(pattern.after, beforeIdx + pattern.before.length)
-    if (afterIdx > beforeIdx) {
-      return { hasReversal: true, afterIndex: afterIdx }
-    }
-  }
-  return { hasReversal: false, afterIndex: 0 }
-}
-
-/**
- * 分析单个分句的情绪得分
- * 返回 { score, weight, matched, negated }
- */
 function analyzeClause(clauseText, clauseWeight = 1) {
   const lower = clauseText.toLowerCase().trim()
   if (!lower) return { score: 3, weight: 0, matched: [], negated: [] }
@@ -191,11 +52,9 @@ function analyzeClause(clauseText, clauseWeight = 1) {
 
   // 合并标准关键词和网络用语关键词
   const allRules = [...KEYWORD_RULES]
-  // 补充网络用语（不重复的）
   for (const slangRule of SLANG_KEYWORDS) {
     const existingRule = allRules.find(r => r.score === slangRule.score)
     if (existingRule) {
-      // 合并到对应分数段
       const newKw = slangRule.keywords.filter(k => !existingRule.keywords.includes(k))
       if (newKw.length > 0) {
         existingRule.keywords = [...existingRule.keywords, ...newKw]
@@ -247,15 +106,10 @@ function analyzeClause(clauseText, clauseWeight = 1) {
   return { score: bestScore, weight: bestWeight, matched: bestMatched, negated: negatedKeywords }
 }
 
-// ============ 危机关键词（直接触发关怀） ============
-const CRISIS_KEYWORDS = ['想死', '不想活', '活不下去', '想不开', '去死', '了结自己', '自杀', '自残']
-
-function hasCrisisKeywords(text) {
-  return CRISIS_KEYWORDS.some(kw => text.includes(kw))
-}
+// ============ 本地关键词分析 ============
 
 function localAnalyze(text) {
-  // 0. 危机关键词检测 → 最高优先级，直接返回 1 + 关怀建议
+  // 0. 危机关键词检测 → 最高优先级
   if (hasCrisisKeywords(text)) {
     return {
       ...buildResult(1, 0.95, '⚠️ 检测到你可能正在经历困难时刻', ['⚠️ 需要关怀']),
@@ -277,7 +131,6 @@ function localAnalyze(text) {
   // 分句
   const clauses = splitClauses(text)
 
-  // 对每个分句独立分析，加权汇总
   let totalWeight = 0
   let weightedSum = 0
   let allMatched = []
@@ -301,14 +154,9 @@ function localAnalyze(text) {
     const clause = clauses[i].trim()
     if (!clause) continue
 
-    // 反转模式下，后半句的分句权重更高
     let clauseWeight = 1
     if (hasReversal && reversalClauseIdx >= 0) {
-      if (i >= reversalClauseIdx) {
-        clauseWeight = 2.5 // 后半句权重提高
-      } else {
-        clauseWeight = 0.5 // 前半句权重降低
-      }
+      clauseWeight = i >= reversalClauseIdx ? 2.5 : 0.5
     }
 
     const result = analyzeClause(clause, clauseWeight)
@@ -321,9 +169,8 @@ function localAnalyze(text) {
     }
   }
 
-  // 如果没有匹配到任何关键词，检查整体是否中性
+  // 没有匹配到任何关键词
   if (totalWeight === 0) {
-    // 尝试用 emoji 检测
     for (const [emoji, score] of Object.entries(EMOJI_MOOD_MAP)) {
       if (text.includes(emoji)) {
         return buildResult(score, 0.5, `基于表情符号分析：${emoji}`, [emoji])
@@ -332,21 +179,18 @@ function localAnalyze(text) {
     return buildResult(3, 0.3, '未能识别明确情绪，记录下来就好~', [])
   }
 
-  // 计算加权平均得分
   const avgScore = weightedSum / totalWeight
   const finalScore = Math.round(avgScore)
   const clampedScore = Math.max(1, Math.min(5, finalScore))
 
   let analysis = `基于关键词匹配：${allMatched.slice(0, 5).join('、')}`
 
-  // 相对化表达弱化
   if (hasRelativeExpression(text.toLowerCase()) && Math.abs(clampedScore - 3) >= 2) {
     const adjustedScore = clampedScore > 3 ? clampedScore - 1 : clampedScore + 1
     analysis += '（情绪有所弱化）'
     return buildResult(adjustedScore, Math.min(0.5 + allMatched.length * 0.1, 0.85), analysis, allMatched.slice(0, 5))
   }
 
-  // 有多分句时降低置信度（混合情绪）
   const confidence = clauses.length > 1
     ? Math.min(0.45 + allMatched.length * 0.12, 0.85)
     : Math.min(0.5 + allMatched.length * 0.15, 0.9)
@@ -420,6 +264,27 @@ async function aiAnalyzeViaWorkers(text) {
 }
 
 /**
+ * 校验并清洗 AI 返回值，防止注入和异常数据
+ */
+function sanitizeAiResult(raw) {
+  const moodNum = Math.max(1, Math.min(5, Math.round(Number(raw.mood) || 3)))
+  const moodKey = MOOD_KEY_MAP[moodNum]
+
+  return {
+    mood: moodKey,
+    intensity: moodNum,
+    moodLabel: MOOD_TYPES[moodKey]?.label || '一般般',
+    confidence: Math.max(0, Math.min(1, Number(raw.confidence) || 0.5)),
+    analysis: String(raw.analysis || '').slice(0, 100),
+    keywords: Array.isArray(raw.keywords)
+      ? raw.keywords.map(k => String(k).slice(0, 20)).slice(0, 5)
+      : [],
+    suggestion: String(raw.suggestion || raw.advice || '').slice(0, 50),
+    method: 'ai',
+  }
+}
+
+/**
  * 通过用户自定义 API 直接调用 AI 分析
  */
 async function aiAnalyzeDirect(text) {
@@ -451,38 +316,23 @@ async function aiAnalyzeDirect(text) {
   const content = data.choices?.[0]?.message?.content
   if (!content) throw new Error('No response content')
 
-  let result
+  let parsed
   try {
     const cleaned = content.replace(/^```(?:json)?\s*\n?/i, '').replace(/\n?```\s*$/i, '').trim()
-    result = JSON.parse(cleaned)
+    parsed = JSON.parse(cleaned)
   } catch (parseErr) {
     console.error('AI 返回内容不是有效 JSON:', content)
     throw new Error('AI 响应格式错误')
   }
 
-  const moodNum = Math.max(1, Math.min(5, Math.round(Number(result.mood) || 3)))
-  const moodKey = MOOD_KEY_MAP[moodNum]
-
-  return {
-    mood: moodKey,
-    intensity: moodNum,
-    moodLabel: MOOD_TYPES[moodKey]?.label || '一般般',
-    confidence: Math.max(0, Math.min(1, Number(result.confidence) || 0.5)),
-    analysis: String(result.analysis || '').slice(0, 100),
-    keywords: Array.isArray(result.keywords) ? result.keywords.slice(0, 5) : [],
-    suggestion: String(result.suggestion || result.advice || '').slice(0, 50),
-    method: 'ai',
-  }
+  return sanitizeAiResult(parsed)
 }
 
 // ============ 主入口 ============
 
 /**
  * 分析情绪 - 主入口
- * 优先级：Workers 代理 → 用户自定义 API → 本地关键词 → 统计分析器
- *
- * 关键词引擎优先：它有完善的否定词、反转模式、分句加权等中文处理逻辑
- * 统计分析器兜底：在关键词无法匹配时，用 TF-IDF + 朴素贝叶斯提供泛化能力
+ * 降级策略：Workers AI 代理 → 用户自定义 API → 本地关键词分析 → 统计分析器
  * @param {string} text - 用户输入文本
  * @returns {Promise<Object>} 分析结果
  */
@@ -503,13 +353,11 @@ export async function analyzeEmotion(text) {
     console.error('用户自定义 API 分析失败，降级到本地分析:', error.message)
   }
 
-  // 3. 优先使用本地关键词分析（中文处理最完善）
+  // 3. 本地关键词分析（中文处理最完善）
   const keywordResult = localAnalyze(text)
 
-  // 4. 如果关键词引擎有明确匹配（confidence > 0.5），直接返回
-  // 否则尝试统计分析器作为补充验证
+  // 4. 关键词置信度足够高时直接返回
   if (keywordResult.confidence > 0.5) {
-    console.log('使用本地关键词分析器')
     return keywordResult
   }
 
@@ -517,14 +365,12 @@ export async function analyzeEmotion(text) {
   try {
     const statResult = statisticalAnalyze(text)
     if (statResult && statResult.confidence > keywordResult.confidence) {
-      console.log('使用统计分析器（TF-IDF + 朴素贝叶斯）作为兜底')
       return statResult
     }
   } catch (error) {
     console.error('统计分析器失败:', error.message)
   }
 
-  console.log('使用本地关键词分析器')
   return keywordResult
 }
 
