@@ -1,4 +1,5 @@
 import { MOOD_TYPES } from '../utils/moodUtils'
+import { t } from '../i18n'
 import { statisticalAnalyze, getModelInfo } from './statisticalAnalyzer'
 import { aiAnalyzeViaWorkers, aiAnalyzeDirect } from './aiService'
 
@@ -123,8 +124,8 @@ function localAnalyze(text) {
   // 0. 危机关键词检测 → 最高优先级
   if (hasCrisisKeywords(text)) {
     return {
-      ...buildResult(1, 0.95, '⚠️ 检测到你可能正在经历困难时刻', ['⚠️ 需要关怀']),
-      suggestion: '你并不孤单。请拨打心理援助热线 400-161-9995，有人愿意倾听。',
+      ...buildResult(1, 0.95, t('analysis.crisis'), [t('analysis.crisisTag')]),
+      suggestion: t('analysis.crisisSuggestion'),
       _crisis: true,
     }
   }
@@ -133,7 +134,7 @@ function localAnalyze(text) {
   const sarcasm = detectSarcasm(text)
   if (sarcasm.isSarcasm) {
     const flippedScore = sarcasm.flipTo === 'negative' ? 2 : 4
-    return buildResult(flippedScore, 0.75, '检测到反讽/调侃语气，已调整情绪判断', ['反讽语气'])
+    return buildResult(flippedScore, 0.75, t('analysis.sarcasm'), [t('analysis.sarcasmTag')])
   }
 
   // 检测反转模式
@@ -184,17 +185,17 @@ function localAnalyze(text) {
   if (totalWeight === 0) {
     for (const [emoji, score] of Object.entries(EMOJI_MOOD_MAP)) {
       if (text.includes(emoji)) {
-        return buildResult(score, 0.5, `基于表情符号分析：${emoji}`, [emoji])
+        return buildResult(score, 0.5, t('analysis.emoji').replace('{emoji}', emoji), [emoji])
       }
     }
-    return buildResult(3, 0.3, '未能识别明确情绪，记录下来就好~', [])
+    return buildResult(3, 0.3, t('analysis.noMatch'), [])
   }
 
   const avgScore = weightedSum / totalWeight
   const finalScore = Math.round(avgScore)
   const clampedScore = Math.max(1, Math.min(5, finalScore))
 
-  let analysis = `基于关键词匹配：${allMatched.slice(0, 5).join('、')}`
+  let analysis = t('analysis.keywordMatch').replace('{keywords}', allMatched.slice(0, 5).join('、'))
 
   // 部分否定检测：某些分句有否定词，某些没有 → 存在对比情绪，适度弱化极端值
   const hasAnyNegation = allNegated.length > 0
@@ -202,14 +203,14 @@ function localAnalyze(text) {
 
   if (hasRelativeExpression(text.toLowerCase()) && Math.abs(clampedScore - 3) >= 2) {
     const adjustedScore = clampedScore > 3 ? clampedScore - 1 : clampedScore + 1
-    analysis += '（情绪有所弱化）'
+    analysis += t('analysis.softened')
     return buildResult(adjustedScore, Math.min(0.5 + allMatched.length * 0.1, 0.85), analysis, allMatched.slice(0, 5))
   }
 
   // 部分否定：有否定词但也有正向匹配 → 情绪不那么极端
   if (hasAnyNegation && hasAnyPositive && Math.abs(clampedScore - 3) >= 2) {
     const adjustedScore = clampedScore > 3 ? clampedScore - 1 : clampedScore + 1
-    analysis += '（混合情绪，适度弱化）'
+    analysis += t('analysis.mixed')
     return buildResult(adjustedScore, Math.min(0.4 + allMatched.length * 0.1, 0.8), analysis, allMatched.slice(0, 5))
   }
 
@@ -218,7 +219,7 @@ function localAnalyze(text) {
     : Math.min(0.5 + allMatched.length * 0.15, 0.9)
 
   if (hasReversal) {
-    analysis += '（综合多个情绪片段）'
+    analysis += t('analysis.combined')
   }
 
   return buildResult(clampedScore, confidence, analysis, allMatched.slice(0, 5))
@@ -229,7 +230,7 @@ function buildResult(score, confidence, analysis, keywords) {
   return {
     mood: moodKey,
     intensity: score,
-    moodLabel: MOOD_TYPES[moodKey]?.label || '一般般',
+    moodLabel: MOOD_TYPES[moodKey]?.label || t('mood.neutral'),
     confidence,
     analysis,
     keywords,
@@ -240,11 +241,11 @@ function buildResult(score, confidence, analysis, keywords) {
 
 function generateSuggestion(score) {
   const suggestions = {
-    1: ['深呼吸，给自己一点时间。如果持续低落，建议找信任的人聊聊。', '每个人都有低谷，照顾好自己，明天会不一样的。'],
-    2: ['难过是正常的情绪，允许自己感受它。写日记是很好的情绪出口。', '试试做一些让自己放松的事情吧。'],
-    3: ['平淡的日子也有它的价值，记录本身就是一种自我觉察。', '试试做点让自己开心的小事？一杯奶茶、一首歌都可以~'],
-    4: ['保持这份好心情！记住这些让你开心的事情。', '美好的一天值得被记录，继续加油！'],
-    5: ['开心到飞起！这种快乐时刻太珍贵了，好好享受~', '分享快乐会让快乐加倍！'],
+    1: [t('suggestion.very_negative.1'), t('suggestion.very_negative.2')],
+    2: [t('suggestion.negative.1'), t('suggestion.negative.2')],
+    3: [t('suggestion.neutral.1'), t('suggestion.neutral.2')],
+    4: [t('suggestion.positive.1'), t('suggestion.positive.2')],
+    5: [t('suggestion.very_positive.1'), t('suggestion.very_positive.2')],
   }
   const list = suggestions[score] || suggestions[3]
   return list[Math.floor(Math.random() * list.length)]
@@ -305,48 +306,48 @@ export { getModelInfo, learnFromFeedback } from './statisticalAnalyzer'
 export function getWellnessTips(moodKey) {
   const tipsMap = {
     very_negative: {
-      title: '照顾好自己',
+      title: t('wellness.very_negative.title'),
       tips: [
-        '深呼吸几次，专注于当下的呼吸',
-        '找一个信任的人聊聊你的感受',
-        '适当运动可以帮助释放负面情绪',
-        '如果持续感到低落，建议寻求专业帮助',
+        t('wellness.very_negative.tip1'),
+        t('wellness.very_negative.tip2'),
+        t('wellness.very_negative.tip3'),
+        t('wellness.very_negative.tip4'),
       ],
     },
     negative: {
-      title: '让自己放松一下',
+      title: t('wellness.negative.title'),
       tips: [
-        '听一首喜欢的歌，让旋律带走烦恼',
-        '出去走走，换个环境透透气',
-        '写日记梳理一下自己的感受',
-        '早点休息，充足的睡眠很重要',
+        t('wellness.negative.tip1'),
+        t('wellness.negative.tip2'),
+        t('wellness.negative.tip3'),
+        t('wellness.negative.tip4'),
       ],
     },
     neutral: {
-      title: '享受平淡的时光',
+      title: t('wellness.neutral.title'),
       tips: [
-        '尝试一个小新事物，给生活加点料',
-        '整理一下房间，清爽的环境带来好心情',
-        '给远方的朋友发条消息',
-        '读几页书，充实自己的内心',
+        t('wellness.neutral.tip1'),
+        t('wellness.neutral.tip2'),
+        t('wellness.neutral.tip3'),
+        t('wellness.neutral.tip4'),
       ],
     },
     positive: {
-      title: '保持好心情',
+      title: t('wellness.positive.title'),
       tips: [
-        '记录下今天让你开心的事，以后可以回顾',
-        '把好心情分享给身边的人',
-        '趁状态好处理一些有挑战的事情',
-        '做一些感恩练习，珍惜当下的美好',
+        t('wellness.positive.tip1'),
+        t('wellness.positive.tip2'),
+        t('wellness.positive.tip3'),
+        t('wellness.positive.tip4'),
       ],
     },
     very_positive: {
-      title: '快乐加倍',
+      title: t('wellness.very_positive.title'),
       tips: [
-        '把这份快乐记录下来，低落时拿出来看看',
-        '拍照记录这个美好的时刻',
-        '分享给朋友，让快乐传递',
-        '好好享受当下，这种时刻很珍贵',
+        t('wellness.very_positive.tip1'),
+        t('wellness.very_positive.tip2'),
+        t('wellness.very_positive.tip3'),
+        t('wellness.very_positive.tip4'),
       ],
     },
   }

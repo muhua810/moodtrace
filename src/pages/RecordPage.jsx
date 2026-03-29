@@ -144,7 +144,7 @@ export default function RecordPage() {
       window.dispatchEvent(new Event('mood-record-updated'))
     } catch (e) {
       console.error("保存失败:", e)
-      setError(t("record.saveError") || "保存失败，请重试")
+      setError(t("record.saveError"))
       setTimeout(() => setError(null), 4000)
     }
   }

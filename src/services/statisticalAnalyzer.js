@@ -12,6 +12,7 @@
  */
 
 import { MOOD_TYPES } from '../utils/moodUtils'
+import { t } from '../i18n'
 
 const MOOD_KEY_MAP = {
   1: 'very_negative',
@@ -420,7 +421,7 @@ function getModel() {
  */
 export function statisticalAnalyze(text) {
   if (!text || text.trim().length === 0) {
-    return buildResult(3, 0.2, '没有输入内容', [])
+    return buildResult(3, 0.2, t('stat.noInput'), [])
   }
 
   const model = getModel()
@@ -485,9 +486,9 @@ function extractKeywords(tokens, model) {
 }
 
 function getMethodLabel(bestLabel, scores) {
-  const labels = { 1: '非常低落', 2: '有点难过', 3: '一般般', 4: '心情不错', 5: '超级开心' }
-  const confidence = scores[bestLabel]
-  return `统计分析判断为「${labels[bestLabel]}」`
+  const labelKeys = { 1: 'mood.very_negative', 2: 'mood.negative', 3: 'mood.neutral', 4: 'mood.positive', 5: 'mood.very_positive' }
+  const label = t(labelKeys[bestLabel]) || MOOD_TYPES[MOOD_KEY_MAP[bestLabel]]?.label
+  return t('stat.judged').replace('{label}', label)
 }
 
 function buildResult(score, confidence, analysis, keywords) {
@@ -495,7 +496,7 @@ function buildResult(score, confidence, analysis, keywords) {
   return {
     mood: moodKey,
     intensity: score,
-    moodLabel: MOOD_TYPES[moodKey]?.label || '一般般',
+    moodLabel: MOOD_TYPES[moodKey]?.label || t('mood.neutral'),
     confidence,
     analysis,
     keywords,
@@ -506,11 +507,11 @@ function buildResult(score, confidence, analysis, keywords) {
 
 function generateSuggestion(score) {
   const suggestions = {
-    1: ['深呼吸，给自己一点时间。如果持续低落，建议找信任的人聊聊。', '每个人都有低谷，照顾好自己，明天会不一样的。'],
-    2: ['难过是正常的情绪，允许自己感受它。写日记是很好的情绪出口。', '试试做一些让自己放松的事情吧。'],
-    3: ['平淡的日子也有它的价值，记录本身就是一种自我觉察。', '试试做点让自己开心的小事？一杯奶茶、一首歌都可以~'],
-    4: ['保持这份好心情！记住这些让你开心的事情。', '美好的一天值得被记录，继续加油！'],
-    5: ['开心到飞起！这种快乐时刻太珍贵了，好好享受~', '分享快乐会让快乐加倍！'],
+    1: [t('suggestion.very_negative.1'), t('suggestion.very_negative.2')],
+    2: [t('suggestion.negative.1'), t('suggestion.negative.2')],
+    3: [t('suggestion.neutral.1'), t('suggestion.neutral.2')],
+    4: [t('suggestion.positive.1'), t('suggestion.positive.2')],
+    5: [t('suggestion.very_positive.1'), t('suggestion.very_positive.2')],
   }
   const list = suggestions[score] || suggestions[3]
   return list[Math.floor(Math.random() * list.length)]

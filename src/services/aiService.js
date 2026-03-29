@@ -8,6 +8,7 @@
  */
 
 import { MOOD_TYPES } from '../utils/moodUtils'
+import { t } from '../i18n'
 import { secureKeyGet } from '../utils/crypto'
 import { getApiBase } from './apiService'
 
@@ -21,10 +22,7 @@ const MOOD_KEY_MAP = {
 
 // ── AI Prompt ──
 
-const SYSTEM_PROMPT = `你是一个情绪分析助手。用户会发来一段简短的文字，请你分析其中表达的情绪。
-用JSON格式返回，包含字段：mood(1-5整数)、moodLabel、confidence(0-1)、analysis(30字内)、keywords(数组)、suggestion(20字内)。
-mood对应关系：1=very_negative, 2=negative, 3=neutral, 4=positive, 5=very_positive。
-只返回JSON，不要有其他内容。`
+const SYSTEM_PROMPT = t('ai.systemPrompt')
 
 // ── Workers AI 代理 ──
 
@@ -75,7 +73,7 @@ function sanitizeAiResult(raw) {
   return {
     mood: moodKey,
     intensity: moodNum,
-    moodLabel: MOOD_TYPES[moodKey]?.label || '一般般',
+    moodLabel: MOOD_TYPES[moodKey]?.label || t('mood.neutral'),
     confidence,
     analysis: String(raw.analysis || '').slice(0, 100),
     keywords: Array.isArray(raw.keywords)
@@ -126,7 +124,7 @@ export async function aiAnalyzeDirect(text) {
     parsed = JSON.parse(cleaned)
   } catch (parseErr) {
     console.error('AI 返回内容不是有效 JSON:', content)
-    throw new Error('AI 响应格式错误')
+    throw new Error(t('ai.responseError'))
   }
 
   return sanitizeAiResult(parsed)

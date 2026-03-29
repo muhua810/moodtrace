@@ -204,7 +204,7 @@ export default function StatsPage() {
       weekdayStats[dayOfWeek].sum += MOOD_TYPES[r.mood]?.intensity || 3
       weekdayStats[dayOfWeek].count++
     })
-    const weekdayLabels = t('heatmap.weekdays').split(','); const weekdayAvgData = (weekdayLabels.length === 7 ? weekdayLabels : ['日','一','二','三','四','五','六']).map((label, i) => ({
+    const weekdayLabels = t('heatmap.weekdays').split(','); const weekdayAvgData = (weekdayLabels.length === 7 ? weekdayLabels : ['S','M','T','W','T','F','S']).map((label, i) => ({
       day: label,
       avg: weekdayStats[i].count ? Number((weekdayStats[i].sum / weekdayStats[i].count).toFixed(1)) : 0,
       count: weekdayStats[i].count,

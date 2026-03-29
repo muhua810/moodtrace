@@ -9,6 +9,7 @@
  */
 
 import { MOOD_TYPES } from '../utils/moodUtils'
+import { t } from '../i18n'
 import { getAllRecords } from './storage'
 import { parseISO, differenceInCalendarDays, subDays, getDay } from 'date-fns'
 
@@ -58,8 +59,8 @@ export function detectDecliningTrend(records) {
       type: INSIGHT_TYPES.DECLINING_TREND,
       severity: avgRecent <= 2 ? 'high' : avgRecent <= 2.5 ? 'medium' : 'low',
       message: avgRecent <= 2
-        ? '最近几天情绪持续走低，如果感到不舒服，请考虑找人聊聊'
-        : '注意到你最近情绪有些下滑，试试做些让自己开心的事？',
+        ? t('insight.decline')
+        : t('insight.declineLight'),
       data: { declining, scores, avgRecent },
     }
   }
@@ -99,7 +100,7 @@ export function detectStressPattern(records) {
     return {
       type: INSIGHT_TYPES.STRESS_PATTERN,
       severity: stressCount >= 6 ? 'high' : 'medium',
-      message: `最近频繁提到「${keywordList}」，压力大的时候记得给自己喘口气的机会`,
+      message: t('insight.stress').replace('{keywords}', keywordList),
       data: { stressCount, keywords: [...matchedKeywords] },
     }
   }
@@ -136,8 +137,8 @@ export function detectRecordGap(records) {
       type: INSIGHT_TYPES.RECORD_GAP,
       severity: gapDays >= 7 ? 'high' : 'medium',
       message: gapDays >= 7
-        ? '好久没记录了，不管怎样，回来记一笔吧'
-        : '有几天没记录了，今天感觉怎么样？',
+        ? t('insight.gapLong')
+        : t('insight.gapShort'),
       data: { gapDays, avgGap: avgGap.toFixed(1) },
     }
   }
@@ -181,13 +182,13 @@ export function detectWeeklyPattern(records) {
     }
   }
 
-  const dayNames = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+  const dayNames = t('insight.weekdays').split(',')
 
   if (worstDay >= 0 && worstAvg <= 2.8) {
     return {
       type: INSIGHT_TYPES.WEEKLY_PATTERN,
       severity: worstAvg <= 2 ? 'medium' : 'low',
-      message: `${dayNames[worstDay]}似乎总是你不太开心的日子，提前做一些准备让自己好过一点？`,
+      message: t('insight.weeklyPattern').replace('{day}', dayNames[worstDay]),
       data: { worstDay: dayNames[worstDay], worstAvg: worstAvg.toFixed(1) },
     }
   }
@@ -215,7 +216,7 @@ export function detectImprovement(records) {
     return {
       type: INSIGHT_TYPES.IMPROVEMENT,
       severity: 'low',
-      message: '最近情绪明显好转，继续保持！',
+      message: t('insight.improvement'),
       data: { recentAvg: recentAvg.toFixed(1), prevAvg: prevAvg.toFixed(1) },
     }
   }
@@ -250,7 +251,7 @@ export function detectMilestone(records) {
     return {
       type: INSIGHT_TYPES.MILESTONE,
       severity: 'low',
-      message: `🎉 连续记录 ${streak} 天！你的坚持值得被看见`,
+      message: t('insight.milestone').replace('{streak}', streak),
       data: { streak },
     }
   }

@@ -459,6 +459,93 @@ const translations = {
 
     // 年度关键词标题
     'annual.keywordsTitle': '年度关键词',
+
+    // 错误页补充
+    'error.details': '错误详情',
+
+    // 保存
+    'record.saveError': '保存失败，请重试',
+
+    // 相对日期
+    'date.daysAgo': '{count}天前',
+
+    // 情绪分析
+    'analysis.crisis': '⚠️ 检测到你可能正在经历困难时刻',
+    'analysis.crisisSuggestion': '你并不孤单。请拨打心理援助热线 400-161-9995，有人愿意倾听。',
+    'analysis.crisisTag': '⚠️ 需要关怀',
+    'analysis.sarcasm': '检测到反讽/调侃语气，已调整情绪判断',
+    'analysis.sarcasmTag': '反讽语气',
+    'analysis.emoji': '基于表情符号分析：{emoji}',
+    'analysis.noMatch': '未能识别明确情绪，记录下来就好~',
+    'analysis.keywordMatch': '基于关键词匹配：{keywords}',
+    'analysis.softened': '（情绪有所弱化）',
+    'analysis.mixed': '（混合情绪，适度弱化）',
+    'analysis.combined': '（综合多个情绪片段）',
+
+    // 提醒
+    'reminder.msg1': '今天的心情怎么样？来记录一下吧 📝',
+    'reminder.msg2': '花一分钟，写一句话，记录今天的感受 💭',
+    'reminder.msg3': '心情需要被看见，来写今天的日记吧 🌟',
+    'reminder.msg4': '今天有什么值得记录的事？来心迹看看 📊',
+    'reminder.appName': '心迹',
+
+    // 建议
+    'suggestion.very_negative.1': '深呼吸，给自己一点时间。如果持续低落，建议找信任的人聊聊。',
+    'suggestion.very_negative.2': '每个人都有低谷，照顾好自己，明天会不一样的。',
+    'suggestion.negative.1': '难过是正常的情绪，允许自己感受它。写日记是很好的情绪出口。',
+    'suggestion.negative.2': '试试做一些让自己放松的事情吧。',
+    'suggestion.neutral.1': '平淡的日子也有它的价值，记录本身就是一种自我觉察。',
+    'suggestion.neutral.2': '试试做点让自己开心的小事？一杯奶茶、一首歌都可以~',
+    'suggestion.positive.1': '保持这份好心情！记住这些让你开心的事情。',
+    'suggestion.positive.2': '美好的一天值得被记录，继续加油！',
+    'suggestion.very_positive.1': '开心到飞起！这种快乐时刻太珍贵了，好好享受~',
+    'suggestion.very_positive.2': '分享快乐会让快乐加倍！',
+
+    // 洞察
+    'insight.decline': '最近几天情绪持续走低，如果感到不舒服，请考虑找人聊聊',
+    'insight.declineLight': '注意到你最近情绪有些下滑，试试做些让自己开心的事？',
+    'insight.stress': '最近频繁提到「{keywords}」，压力大的时候记得给自己喘口气的机会',
+    'insight.gapLong': '好久没记录了，不管怎样，回来记一笔吧',
+    'insight.gapShort': '有几天没记录了，今天感觉怎么样？',
+    'insight.weeklyPattern': '{day}似乎总是你不太开心的日子，提前做一些准备让自己好过一点？',
+    'insight.improvement': '最近情绪明显好转，继续保持！',
+    'insight.milestone': '🎉 连续记录 {streak} 天！你的坚持值得被看见',
+    'insight.weekdays': '周日,周一,周二,周三,周四,周五,周六',
+
+    // 统计分析
+    'stat.judged': '统计分析判断为「{label}」',
+    'stat.noInput': '没有输入内容',
+
+    // 情绪建议标题
+    'wellness.very_negative.title': '照顾好自己',
+    'wellness.very_negative.tip1': '深呼吸几次，专注于当下的呼吸',
+    'wellness.very_negative.tip2': '找一个信任的人聊聊你的感受',
+    'wellness.very_negative.tip3': '适当运动可以帮助释放负面情绪',
+    'wellness.very_negative.tip4': '如果持续感到低落，建议寻求专业帮助',
+    'wellness.negative.title': '让自己放松一下',
+    'wellness.negative.tip1': '听一首喜欢的歌，让旋律带走烦恼',
+    'wellness.negative.tip2': '出去走走，换个环境透透气',
+    'wellness.negative.tip3': '写日记梳理一下自己的感受',
+    'wellness.negative.tip4': '早点休息，充足的睡眠很重要',
+    'wellness.neutral.title': '享受平淡的时光',
+    'wellness.neutral.tip1': '尝试一个小新事物，给生活加点料',
+    'wellness.neutral.tip2': '整理一下房间，清爽的环境带来好心情',
+    'wellness.neutral.tip3': '给远方的朋友发条消息',
+    'wellness.neutral.tip4': '读几页书，充实自己的内心',
+    'wellness.positive.title': '保持好心情',
+    'wellness.positive.tip1': '记录下今天让你开心的事，以后可以回顾',
+    'wellness.positive.tip2': '把好心情分享给身边的人',
+    'wellness.positive.tip3': '趁状态好处理一些有挑战的事情',
+    'wellness.positive.tip4': '做一些感恩练习，珍惜当下的美好',
+    'wellness.very_positive.title': '快乐加倍',
+    'wellness.very_positive.tip1': '把这份快乐记录下来，低落时拿出来看看',
+    'wellness.very_positive.tip2': '拍照记录这个美好的时刻',
+    'wellness.very_positive.tip3': '分享给朋友，让快乐传递',
+    'wellness.very_positive.tip4': '好好享受当下，这种时刻很珍贵',
+
+    // AI 服务
+    'ai.responseError': 'AI 响应格式错误',
+    'ai.systemPrompt': '你是一个情绪分析助手。用户会发来一段简短的文字，请你分析其中表达的情绪。\n用JSON格式返回，包含字段：mood(1-5整数)、moodLabel、confidence(0-1)、analysis(30字内)、keywords(数组)、suggestion(20字内)。\nmood对应关系：1=very_negative, 2=negative, 3=neutral, 4=positive, 5=very_positive。\n只返回JSON，不要有其他内容。',
   },
 
   en: {
@@ -887,6 +974,86 @@ const translations = {
     'stats.monthlyCompare': 'Monthly Comparison',
 
     'annual.keywordsTitle': 'Annual Keywords',
+
+    'error.details': 'Error Details',
+
+    'record.saveError': 'Save failed, please try again',
+
+    'date.daysAgo': '{count} days ago',
+
+    'analysis.crisis': '⚠️ It looks like you might be going through a tough time',
+    'analysis.crisisSuggestion': 'You are not alone. Please call the mental health hotline 400-161-9995, someone is willing to listen.',
+    'analysis.crisisTag': '⚠️ Needs care',
+    'analysis.sarcasm': 'Detected sarcasm/playful tone, adjusted mood assessment',
+    'analysis.sarcasmTag': 'Sarcastic tone',
+    'analysis.emoji': 'Based on emoji analysis: {emoji}',
+    'analysis.noMatch': 'Couldn\'t identify a clear mood, but recording is what matters~',
+    'analysis.keywordMatch': 'Based on keyword matching: {keywords}',
+    'analysis.softened': ' (mood slightly softened)',
+    'analysis.mixed': ' (mixed emotions, moderately softened)',
+    'analysis.combined': ' (combined multiple mood fragments)',
+
+    'reminder.msg1': 'How are you feeling today? Let\'s record it 📝',
+    'reminder.msg2': 'Take a minute, write a sentence about your feelings 💭',
+    'reminder.msg3': 'Your mood deserves to be seen, come write today\'s entry 🌟',
+    'reminder.msg4': 'Anything worth recording today? Come check MoodTrace 📊',
+    'reminder.appName': 'MoodTrace',
+
+    'suggestion.very_negative.1': 'Take a deep breath and give yourself some time. If you keep feeling low, consider talking to someone you trust.',
+    'suggestion.very_negative.2': 'Everyone has rough patches. Take care of yourself — tomorrow will be different.',
+    'suggestion.negative.1': 'It\'s normal to feel sad. Allow yourself to feel it. Journaling is a great emotional outlet.',
+    'suggestion.negative.2': 'Try doing something relaxing for yourself.',
+    'suggestion.neutral.1': 'Ordinary days have their own value — recording is itself a form of self-awareness.',
+    'suggestion.neutral.2': 'Try a small thing to cheer yourself up? A milk tea, a song, anything works~',
+    'suggestion.positive.1': 'Keep up the good mood! Remember the things that made you happy.',
+    'suggestion.positive.2': 'A good day is worth recording. Keep going!',
+    'suggestion.very_positive.1': 'On cloud nine! These happy moments are precious — enjoy every second~',
+    'suggestion.very_positive.2': 'Sharing happiness doubles the joy!',
+
+    'insight.decline': 'Your mood has been declining for the past few days. If you\'re not feeling well, consider talking to someone.',
+    'insight.declineLight': 'We noticed your mood dipping recently. Try doing something that makes you happy?',
+    'insight.stress': 'You\'ve been mentioning "{keywords}" a lot lately. Remember to give yourself a break when stressed.',
+    'insight.gapLong': 'Haven\'t recorded in a while. Come back and write an entry!',
+    'insight.gapShort': 'Haven\'t recorded for a few days. How are you feeling today?',
+    'insight.weeklyPattern': '{day} always seems to be a rough day for you. Maybe prepare something nice ahead of time?',
+    'insight.improvement': 'Your mood has been improving lately. Keep it up!',
+    'insight.milestone': '🎉 {streak} days of consecutive recording! Your dedication is remarkable.',
+    'insight.weekdays': 'Sun,Mon,Tue,Wed,Thu,Fri,Sat',
+
+    'stat.judged': 'Statistical analysis: "{label}"',
+    'stat.noInput': 'No input provided',
+
+    'wellness.very_negative.title': 'Take care of yourself',
+    'wellness.very_negative.tip1': 'Take a few deep breaths, focus on your breathing',
+    'wellness.very_negative.tip2': 'Talk to someone you trust about how you feel',
+    'wellness.very_negative.tip3': 'Light exercise can help release negative emotions',
+    'wellness.very_negative.tip4': 'If you keep feeling low, consider professional help',
+    'wellness.negative.title': 'Give yourself a break',
+    'wellness.negative.tip1': 'Listen to a song you love, let the melody ease your worries',
+    'wellness.negative.tip2': 'Go outside for a change of scenery',
+    'wellness.negative.tip3': 'Write in a journal to sort through your feelings',
+    'wellness.negative.tip4': 'Get some rest — good sleep matters',
+
+    'wellness.neutral.title': 'Enjoy the quiet moments',
+    'wellness.neutral.tip1': 'Try something new to add some flavor to your day',
+    'wellness.neutral.tip2': 'Tidy up your room — a clean space lifts your mood',
+    'wellness.neutral.tip3': 'Send a message to a distant friend',
+    'wellness.neutral.tip4': 'Read a few pages to enrich your mind',
+
+    'wellness.positive.title': 'Keep the good vibes',
+    'wellness.positive.tip1': 'Write down what made you happy today to look back on later',
+    'wellness.positive.tip2': 'Share your good mood with people around you',
+    'wellness.positive.tip3': 'Tackle something challenging while you\'re feeling great',
+    'wellness.positive.tip4': 'Practice gratitude — cherish the good moments',
+
+    'wellness.very_positive.title': 'Double the joy',
+    'wellness.very_positive.tip1': 'Save this happiness — look back on it during tough times',
+    'wellness.very_positive.tip2': 'Take a photo to remember this moment',
+    'wellness.very_positive.tip3': 'Share with friends and spread the joy',
+    'wellness.very_positive.tip4': 'Enjoy the moment — these times are precious',
+
+    'ai.responseError': 'AI response format error',
+    'ai.systemPrompt': 'You are an emotion analysis assistant. The user will send a short text. Analyze the emotion expressed.\nReturn JSON with fields: mood(1-5 integer), moodLabel, confidence(0-1), analysis(within 30 chars), keywords(array), suggestion(within 20 chars).\nmood mapping: 1=very_negative, 2=negative, 3=neutral, 4=positive, 5=very_positive.\nReturn only JSON, no other content.',
   },
 
   ja: {

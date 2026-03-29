@@ -140,8 +140,7 @@ export function formatRelativeDate(dateStr) {
   if (diff === 1) return t('record.yesterday')
   if (diff === 2) return t('record.beforeYesterday')
   if (diff > 0 && diff <= 6) {
-    const lang = localStorage.getItem('moodtrace_lang') || 'zh'
-    return lang === 'zh' ? `${diff}天前` : `${diff} days ago`
+    return t('date.daysAgo').replace('{count}', diff)
   }
   return dateStr
 }

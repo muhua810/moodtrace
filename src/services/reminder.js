@@ -1,6 +1,7 @@
 // 每日提醒通知服务
 
 import { getLocalDateString } from '../utils/moodUtils'
+import { t } from '../i18n'
 
 const REMINDER_KEY = 'mood_calendar_reminder'
 
@@ -57,15 +58,16 @@ function hasRecordedToday() {
   }
 }
 
-const REMINDER_MESSAGES = [
-  '今天的心情怎么样？来记录一下吧 📝',
-  '花一分钟，写一句话，记录今天的感受 💭',
-  '心情需要被看见，来写今天的日记吧 🌟',
-  '今天有什么值得记录的事？来心迹看看 📊',
+const REMINDER_KEYS = [
+  'reminder.msg1',
+  'reminder.msg2',
+  'reminder.msg3',
+  'reminder.msg4',
 ]
 
 function getRandomMessage() {
-  return REMINDER_MESSAGES[Math.floor(Math.random() * REMINDER_MESSAGES.length)]
+  const key = REMINDER_KEYS[Math.floor(Math.random() * REMINDER_KEYS.length)]
+  return t(key)
 }
 
 // 发送提醒（优先浏览器通知，降级到页面内回调）
@@ -76,7 +78,7 @@ export function sendReminder() {
 
   // 优先用浏览器通知
   if ('Notification' in window && Notification.permission === 'granted') {
-    new Notification('心迹', {
+    new Notification(t('reminder.appName'), {
       body,
       icon: '/icons/icon-192.svg',
       badge: '/icons/icon-192.svg',

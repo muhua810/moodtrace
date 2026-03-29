@@ -50,7 +50,7 @@ export default class ErrorBoundary extends Component {
             {isDev && this.state.error && (
               <details className="mb-4 text-left">
                 <summary className="text-xs theme-text-tertiary cursor-pointer hover:theme-text-secondary">
-                  错误详情
+                  {t('error.details')}
                 </summary>
                 <pre className="mt-2 p-3 rounded-lg bg-black/30 text-xs text-red-300 overflow-auto max-h-32 whitespace-pre-wrap">
                   {this.state.error.toString()}
