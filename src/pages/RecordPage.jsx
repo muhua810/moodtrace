@@ -422,7 +422,7 @@ export default function RecordPage() {
             )}
 
             {/* 纠正按钮 — 仅 AI/关键词/统计分析时显示 */}
-            {!corrected && (result.method === 'ai' || result.method === 'keyword' || result.method === 'statistical') && !saved && (
+            {!corrected && (result.method === 'ai' || result.method === 'keyword' || result.method === 'statistical') && (!saved || editing) && (
               <div className="mt-3 pt-3 border-t border-white/5">
                 {!showCorrection ? (
                   <button
