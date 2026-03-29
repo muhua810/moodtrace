@@ -85,7 +85,21 @@
 
 ## 5. 核心模块详解
 
-### 4.1 情绪分析引擎 (`emotionAnalyzer.js`)
+### 4.1 情绪分析引擎
+
+情绪分析由多个模块协作完成：
+
+| 模块 | 文件 | 职责 |
+|------|------|------|
+| 分析编排 | `emotionAnalyzer.js` | 四层降级策略编排，本地关键词分析 |
+| AI 调用 | `aiService.js` | Workers AI 代理 + 用户自定义 API + 返回值校验 |
+| 关键词库 | `analyze/keywords.js` | 180+ 中英文关键词，五级分类 |
+| Emoji 映射 | `analyze/emojiMap.js` | 50+ emoji 情绪映射 |
+| 否定词 | `analyze/negation.js` | 29 否定词检测 + 分句 + 反转模式 |
+| 反讽检测 | `analyze/sarcasm.js` | 12 种反讽模式 |
+| 统计分析器 | `statisticalAnalyzer.js` | TF-IDF + 朴素贝叶斯兜底 |
+
+#### 关键词匹配算法（分句加权 + Emoji + 反转检测）
 
 #### 关键词匹配算法（分句加权 + Emoji + 反转检测）
 
@@ -249,16 +263,19 @@ Tailwind 的 `dark:` 前缀方案需要大量重复类名。CSS 变量 + `data-t
 
 | 模块 | 测试数 | 覆盖内容 |
 |------|--------|----------|
-| moodUtils | 12 | 类型定义、颜色映射、文本工具函数 |
-| storage | 32 | CRUD、统计计算、连续天数、导入导出、createdAt 保留 |
-| emotionAnalyzer | 26 | 关键词分析、否定词(远非/算不得)、混合情绪(虽然...但是...)、emoji、降级策略 |
-| emotionAnalyzer.edge | 12 | 边界用例、混合情绪、英文输入 |
+| moodUtils | 12+8 | 类型定义、颜色映射、文本工具函数 |
+| storage | 32+12 | CRUD、统计计算、连续天数、导入导出、createdAt 保留 |
+| emotionAnalyzer | 28 | 关键词分析、否定词、emoji、降级策略、返回值完整性 |
+| emotionAnalyzer.edge | 11 | 边界用例、混合情绪、英文输入 |
+| sarcasmAndSlang | 26 | 反讽检测（12 种模式）、网络用语、危机关键词 |
 | apiService | 12 | API 调用、匿名开关、错误降级 |
 | reminder | 7 | 提醒设置、定时检查、通知 |
 | HomePage | 7 | 页面渲染、今日卡片、视图切换、最近记录 |
 | RecordPage | 12 | 输入框、手动选择、字符计数、已有记录、XSS 过滤 |
-| demoData | 10 | 数据生成合理性、周末情绪倾向、字段完整性 |
-| **总计** | **130+** | |
+| demoData | 12 | 数据生成合理性、周末情绪倾向、字段完整性 |
+| **总计** | **190** | |
+
+**核心模块覆盖率**：emotionAnalyzer 93.6% | statisticalAnalyzer 95.3% | keywords 100% | negation 100% | sarcasm 95.2% | emojiMap 100%
 
 ### 6.2 未覆盖范围及原因
 

@@ -17,17 +17,25 @@
 
 | 模块 | 测试用例数 | 覆盖功能 |
 |------|-----------|---------|
-| moodUtils | 12 | 情绪类型定义、颜色映射、CSS 类获取 |
-| storage | 32 | 增删改查、统计计算、导入导出、边界条件、加密模式 |
-| emotionAnalyzer | 26 | 关键词分析、否定词、Emoji、分句加权、降级策略 |
-| emotionAnalyzer.edge | 12 | 边界用例：空输入、长文本、混合情绪 |
-| sarcasmAndSlang | 20+ | 反讽检测（12种模式）、网络用语识别、危机关键词 |
+| moodUtils | 20 | 情绪类型定义、颜色映射、CSS 类获取（2 个测试文件） |
+| storage | 44 | 增删改查、统计计算、导入导出、边界条件、加密模式（2 个测试文件） |
+| emotionAnalyzer | 28 | 关键词分析、否定词、Emoji、分句加权、降级策略、返回值完整性 |
+| emotionAnalyzer.edge | 11 | 边界用例：空输入、长文本、混合情绪、英文输入 |
+| sarcasmAndSlang | 26 | 反讽检测（12 种模式）、网络用语识别（30+ 条）、危机关键词 |
 | apiService | 12 | API 调用、匿名开关、错误降级、健康检查 |
 | reminder | 7 | 提醒设置、定时检查、通知发送 |
 | HomePage | 7 | 页面渲染、今日卡片、视图切换 |
 | RecordPage | 12 | 输入框、手动选择、XSS 过滤 |
-| demoData | 10 | 数据生成合理性、周末情绪倾向 |
+| demoData | 12 | 数据生成合理性、周末情绪倾向 |
 | **合计** | **190** | |
+
+**核心模块覆盖率**（V8 Coverage）：
+- emotionAnalyzer.js: 93.6% (Lines)
+- statisticalAnalyzer.js: 95.3% (Lines)
+- keywords.js: 100%
+- negation.js: 100%
+- sarcasm.js: 95.2%
+- emojiMap.js: 100%
 
 ### 2.2 测试用例清单
 
