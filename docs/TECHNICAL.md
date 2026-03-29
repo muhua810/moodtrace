@@ -15,7 +15,7 @@
 - **图表**: Recharts
 - **图标**: Lucide React
 - **日期处理**: date-fns
-- **后端**: Cloudflare Workers + KV（AI 代理 + 匿名统计 API）
+- **后端**: Cloudflare Workers + KV（AI 代理 + 伪匿名统计 API）
 - **数据存储**: LocalStorage（核心数据）+ Cloudflare KV（统计聚合）
 - **AI 分析**: Workers AI 代理（DeepSeek）+ 本地关键词分析（140+ 关键词 + Emoji + 分句加权 + 反讽检测 + 20+ 网络用语）+ OpenAI 兼容 API（可选）
 - **PWA**: Service Worker + Web App Manifest
@@ -227,7 +227,7 @@ npm run test:watch    # 监听模式
 - **构建**: `npm run build` 生成静态文件（输出到 dist/，含 manualChunks 代码分割）
 - **预览**: `npm run preview` 本地预览构建结果
 - **前端部署**: Cloudflare Pages（默认）/ GitHub Pages（设置 `VITE_BASE_URL`）/ Vercel，支持 Vercel / Netlify / GitHub Pages
-- **后端部署**: Cloudflare Workers + KV（`worker/` 目录），含 AI 分析代理 + 匿名统计 + 预置演示数据
+- **后端部署**: Cloudflare Workers + KV（`worker/` 目录），含 AI 分析代理 + 伪匿名统计 + 预置演示数据
   ```bash
   cd worker && wrangler deploy
   ```
