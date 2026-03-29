@@ -1,3 +1,30 @@
+## v2.1.2 (2026-03-29) — 代码优化 + 关键词扩充 + 反讽增强
+
+### ⚡ 性能优化
+- **提取 `useMediaQuery` 为共享 hooks**：消除 HomePage / HeatmapCalendar 中 3 处重复定义
+- **修复 `getDemoFallback` closure hack**：改用规范的 `useRef` 缓存模式
+- **vite 构建配置优化**：改进代码分割策略，react 核心单独拆包（`vendor-react`），首屏加载更轻量
+
+### 🧠 情绪分析增强
+- **关键词库扩充 40+**：新增「精神内耗」「压力山大」「卷不动了」「心情复杂」「被批评」「被否定」「被忽视」等当代大学生高频表达
+- **反讽检测从 6 种扩展到 12 种模式**：新增省略号+正面词、"哦呵呵"结尾、"我可太X了"、"666+负面"、"好的好的"重复等模式
+- **网络用语扩充**：新增「心情美丽」「干就完了」「有点emo」「脑壳疼」「超级无语」「太香了」等
+
+### 🔧 工程改进
+- **ThemeContext 增强**：支持系统主题自动跟随（`prefers-color-scheme` 变化时自动切换）
+- **ErrorBoundary 增强**：新增重试计数、返回首页按钮、开发环境错误详情展示
+- **SEO 优化**：新增 `robots.txt` + `sitemap.xml`
+
+### 🧪 测试
+- **新增 `sarcasmAndSlang.test.js`**：20+ 测试用例覆盖反讽检测、网络用语识别、危机关键词
+- **修复 HomePage 测试**：补充 lucide-react mock 缺失的 Sparkles/Zap/TrendingUp 图标
+- **总测试数 190 个，全部通过**
+
+### 📝 文档
+- CHANGELOG / TECHNICAL / TESTING 同步更新至 v2.1.2
+
+---
+
 ## v2.1.1 (2026-03-28) — 多语言国际化支持
 
 ### 🌍 多语言国际化 (i18n)

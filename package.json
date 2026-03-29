@@ -1,6 +1,6 @@
 {
   "name": "moodtrace",
-  "version": "2.1.1",
+  "version": "2.1.2",
   "description": "AI 驱动的情绪追踪与可视化应用，帮助用户通过每日一句话记录心情，AI 自动分析情绪并生成情绪热力图日历，提供心理健康洞察。",
   "main": "index.js",
   "scripts": {
