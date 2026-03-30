@@ -18,7 +18,7 @@
  *   GET  /api/health           健康检查
  */
 
-import { corsResponse, handleOptions, checkRateLimit } from './utils.js'
+import { corsResponse, handleOptions, checkRateLimit, rateLimitedResponse } from './utils.js'
 import { handleAnalyze } from './routes/analyze.js'
 import { handleSubmit, handleSummary, handleTrends, handleKeywords } from './routes/stats.js'
 import { handleBackupSave, handleBackupRestore } from './routes/backup.js'
@@ -52,9 +52,9 @@ export default {
     // 健康检查不限流
     if (url.pathname === '/api/health' && request.method === 'GET') return handleHealth()
 
-    // 其他接口限流
+    // 其他接口限流（返回标准限流头）
     const allowed = await checkRateLimit(request, env)
-    if (!allowed) return corsResponse({ error: '请求过于频繁，请稍后再试' }, 429)
+    if (!allowed) return rateLimitedResponse(request)
 
     // 路由分发
     if (url.pathname === '/api/analyze' && request.method === 'POST') return handleAnalyze(request, env)

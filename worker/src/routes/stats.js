@@ -99,13 +99,14 @@ export async function handleSubmit(request, env) {
 
     await env.MOOD_STATS.put(statsKey, JSON.stringify(stats))
 
-    // 更新关键词热度
+    // 更新关键词热度（已做长度和格式限制，防注入）
     if (Array.isArray(keywords) && keywords.length > 0) {
       const kwRaw = await env.MOOD_STATS.get(keywordsKey)
       let kwData = kwRaw ? JSON.parse(kwRaw) : {}
       for (const kw of keywords.slice(0, 3)) {
-        const cleanKw = String(kw).slice(0, 20)
-        if (cleanKw) {
+        // 仅保留中文、字母、数字，防止通过关键词注入特殊字符
+        const cleanKw = String(kw).slice(0, 20).replace(/[^\u4e00-\u9fff\u3400-\u4dbf\w\s-]/g, '').trim()
+        if (cleanKw && cleanKw.length >= 1) {
           kwData[cleanKw] = (kwData[cleanKw] || 0) + 1
         }
       }

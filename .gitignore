@@ -5,3 +5,7 @@ coverage/
 *.local
 *.log
 .wrangler/
+.env
+.env.*
+# 允许提交 .env.example 作为配置参考
+!.env.example

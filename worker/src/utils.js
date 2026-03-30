@@ -39,6 +39,21 @@ export function corsResponse(body, status = 200, request) {
   return new Response(JSON.stringify(body), { status, headers })
 }
 
+/**
+ * 带限流头的响应（仅限流 429 场景使用）
+ */
+export function rateLimitedResponse(request) {
+  const headers = request ? getCorsHeaders(request) : {}
+  headers['Retry-After'] = '60'
+  headers['X-RateLimit-Limit'] = String(RATE_LIMIT_MAX)
+  headers['X-RateLimit-Remaining'] = '0'
+  headers['X-RateLimit-Reset'] = String(Math.ceil(Date.now() / 1000) + RATE_LIMIT_WINDOW)
+  return new Response(JSON.stringify({ error: '请求过于频繁，请稍后再试' }), {
+    status: 429,
+    headers,
+  })
+}
+
 export function handleOptions(request) {
   return new Response(null, { headers: getCorsHeaders(request) })
 }
