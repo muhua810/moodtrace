@@ -173,5 +173,8 @@
 
 - 参赛类别：软件应用与开发
 - 作品形式：Web App（响应式设计，支持手机和电脑浏览器）
+- 学校：东华理工大学
+- 团队成员：杨欣桦、敖婧颖、肖莹莹
+- 指导老师：饶志华
 - 部署平台：Cloudflare Pages（前端）+ Cloudflare Workers（后端）
 - 代码仓库：https://github.com/muhua810/moodtrace
